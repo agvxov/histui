@@ -1,17 +1,29 @@
 #include "tui.hpp"
 
-#include <stdio.h>
 #include <ncurses.h>
 
-#include "config.hpp"
-#include "db.hpp"
+WINDOW * main_window;
+WINDOW * input_window;
 
-static
-char * render_entry(const Entry * const entry, const char * const format) {
-    return NULL;
+int init_tui(void) {
+	initscr();
+	noecho();
+	curs_set(0);
+	main_window = newwin(COLS-1, LINES, 0, 0);
+    box(main_window, 0, 0);
+    return 0;
 }
 
-signed tui_main(int argc, char * * argv) {
-    read_config(NULL);
+int deinit_tui(void) {
+	endwin();
     return 0;
+}
+
+void tui_append_back(int timestamp, const unsigned char * const text) {
+    mvprintw(1, 1, "%d, %s\n", timestamp, text);
+}
+
+void tui_refresh(void) {
+    wrefresh(main_window);
+    refresh();
 }

@@ -1,61 +1,42 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <map>
-#include <string>
-
+#include "storage.hpp"
 #include "tui.hpp"
-#include "db.hpp"
+#include "bash_history.yy.hpp"
 
-using namespace std;
+// XXX
+#include <sqlite3.h>
 
-[[ noreturn ]]
-void version() {
-    puts("Histui "
-    #include "version.inc"
-    );
-
-    exit(0);
+void init() {
+    init_storage();
+    init_tui();
 }
 
-[[ noreturn ]]
-void usage(int exit_value = 0) {
-    ;
-    exit(exit_value);
+void deinit() {
+    deinit_storage();
+    deinit_tui();
 }
 
-void global_options(const int argc, const char * const * const argv) {
-    for(int i = 0; i < argc; i++) {
-        if (not strcmp(argv[i], "-v")
-        ||  not strcmp(argv[i], "--version")) {
-            version();
-        }
-        if (not strcmp(argv[i], "-h")
-        ||  not strcmp(argv[i], "--help")) {
-            usage();
-        }
-    }
-}
+signed main(int argc, char * argv[]) {
+    // XXX
+    extern sqlite3 * db;
+    extern sqlite3_stmt * stmt;
+    // TODO cli stuff
 
-typedef signed (*mainlike_t)(int argc, char * * argv);
-map<const char*, mainlike_t> verb_table = {
-    {"tui", tui_main},
-    {"import", import_main},
-    {"export", export_main},
-};
+    init();
 
-signed main(int argc, char * * argv) {
-    if (argc < 2) {
-        usage(2);
+    bash_history_in = fopen("/home/anon/stow/.cache/.bash_history", "r");
+    bash_history_lex();
+
+    // XXX
+    while (true) {
+        sqlite3_prepare_v2(db, "SELECT * FROM test WHERE DAMERAU_LEVENSHTEIN(data, 'a');", -1, &stmt, 0);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            tui_append_back(sqlite3_column_int(stmt, 0), sqlite3_column_text(stmt, 1));
+        }
+        sqlite3_finalize(stmt);
+        tui_refresh();
     }
 
-    global_options(argc, argv);
+    deinit();
 
-    for (const auto &i : verb_table) {
-        if (not strcmp(argv[1], i.first)) {
-            return i.second(argc, argv);
-        }
-    }
-
-    return 1;
+    return 0;
 }
