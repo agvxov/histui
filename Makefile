@@ -9,22 +9,23 @@ else
   CXXFLAGS += -O3 -fno-stack-protector -fno-exceptions -fno-rtti
 endif
 
-LDLIBS   += $$(pkgconf --cflags --libs ncurses) $$(pkgconf --cflags --libs readline)
-CXXFLAGS += -std=gnu++20 -I./source/ -I./object/ -I./
+LIBFLAGS := $$(pkgconf --cflags ncurses readline sqlite3)
+CXXFLAGS += -std=gnu++20 -I./source/ -I./object/ -I./ ${LIBFLAGS}
+LINKasd  += $$(pkgconf --libs ncurses readline sqlite3) 
 
 OBJECT.d:=object/
 SOURCE.d:=source/
-SOURCE:=main.cpp tui.cpp db.cpp config.l
+SOURCE:=bash_history.yy.cpp main.cpp tui.cpp storage.cpp damerau_levenshtein.cpp
+OBJECT:=$(addprefix ${OBJECT.d},$(addsuffix .o,$(basename ${SOURCE})))
 SOURCE:=$(addprefix ${SOURCE.d},${SOURCE})
-OBJECT:=$(addprefix ${OBJECT.d},$(subst ${SOURCE.d},,$(addsuffix .o,$(basename ${SOURCE}))))
 
 OUTPUT:=histui
 
 ${OUTPUT}: ${OBJECT}
-	${LINK.cpp} ${OBJECT} -o ${OUTPUT} ${LDLIBS}
+	${LINK.cpp} ${OBJECT} ${LINKasd} -o ${OUTPUT}
 
-object/%.l.cpp: source/%.l
-	${LEX} ${LFLAGS} -o $@ $<
+object/%.yy.cpp: source/%.l
+	${LEX} ${LFLAGS} --prefix=$*_ --header-file=$(basename $@).hpp -o $@ $<
 
 object/%.o: object/%.l.cpp
 	${COMPILE.cpp} $< -o $@
