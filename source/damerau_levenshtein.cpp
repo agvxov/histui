@@ -71,7 +71,7 @@ damerau_levenshtein_(
 void
 damerau_levenshtein(
   sqlite3_context *context,
-  int argc,
+  [[maybe_unused]] int argc,
   sqlite3_value **argv
 ){
     
@@ -92,7 +92,7 @@ damerau_levenshtein(
 void 
 is_damerau_levenshtein(
   sqlite3_context *context,
-  int argc,
+  [[maybe_unused]] int argc,
   sqlite3_value **argv
 ){
     

@@ -2,7 +2,6 @@
 
 ifeq (${DEBUG}, 1)
   LFLAGS   += --debug --trace
-  CXXFLAGS += -Wall -Wextra -Wpedantic 
   CXXFLAGS += -DDEBUG -O0 -ggdb -fno-inline	
   WRAP     := valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all 
 else
@@ -11,6 +10,7 @@ endif
 
 LIBFLAGS := $$(pkgconf --cflags ncurses readline sqlite3)
 CXXFLAGS += -std=gnu++20 -I./source/ -I./object/ -I./ ${LIBFLAGS}
+CXXFLAGS += -Wall -Wextra -Wpedantic 
 LINKasd  += $$(pkgconf --libs ncurses readline sqlite3) 
 
 OBJECT.d:=object/
@@ -37,5 +37,5 @@ clean:
 	-rm ${OBJECT.d}/*
 	-rm ./${OUTPUT}
 
-run:
-	./${OUTPUT}
+test:
+	${WRAP} ./${OUTPUT}

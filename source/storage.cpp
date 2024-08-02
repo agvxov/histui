@@ -2,11 +2,10 @@
 
 #include <stddef.h>
 #include <sqlite3.h>
-//#include "damerau_levenshtein.h"
-#include "damerau_levenshtein2.h"
+#include "damerau_levenshtein.hpp"
 
-sqlite3 * db;
-sqlite3_stmt * stmt;
+static sqlite3 * db;
+static sqlite3_stmt * stmt;
 
 int init_storage(void) {
     sqlite3_open(":memory:", &db);
@@ -20,6 +19,7 @@ int init_storage(void) {
 }
 
 int deinit_storage(void) {
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
     return 0;
 }
@@ -34,4 +34,23 @@ int insert_entry(int timestamp, const char * const command) {
     sqlite3_finalize(stmt);
 
     return 0;
+}
+
+void query(const char * const string) {
+    sqlite3_prepare_v2(db, "SELECT * FROM test ORDER BY DAMERAU_LEVENSHTEIN(data, ?) LIMIT 40;", -1, &stmt, 0);
+    sqlite3_bind_text(stmt, 1, string, -1, SQLITE_TRANSIENT);
+}
+
+entry_t get_entry(void) {
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+        sqlite3_finalize(stmt);
+        return (entry_t){
+            .timestamp = 0,
+            .command   = NULL
+        };
+    }
+    return  (entry_t){
+        .timestamp = sqlite3_column_int(stmt, 0),
+        .command   = (char*)sqlite3_column_text(stmt, 1)
+    };
 }
