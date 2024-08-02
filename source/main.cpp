@@ -1,11 +1,10 @@
+#include <locale.h>
 #include "storage.hpp"
 #include "tui.hpp"
 #include "bash_history.yy.hpp"
 
-// XXX
-#include <sqlite3.h>
-
 void init() {
+    setlocale(LC_TIME, "C");
     init_storage();
     init_tui();
 }
@@ -16,9 +15,6 @@ void deinit() {
 }
 
 signed main(int argc, char * argv[]) {
-    // XXX
-    extern sqlite3 * db;
-    extern sqlite3_stmt * stmt;
     // TODO cli stuff
 
     init();
@@ -26,13 +22,15 @@ signed main(int argc, char * argv[]) {
     bash_history_in = fopen("/home/anon/stow/.cache/.bash_history", "r");
     bash_history_lex();
 
-    // XXX
+    tui_refresh();
+
+    entry_t entry;
     while (true) {
-        sqlite3_prepare_v2(db, "SELECT * FROM test WHERE DAMERAU_LEVENSHTEIN(data, 'a');", -1, &stmt, 0);
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            tui_append_back(sqlite3_column_int(stmt, 0), sqlite3_column_text(stmt, 1));
+        query(rl_line_buffer);
+        while (entry = get_entry(), entry.command != NULL) {
+            tui_append_back(entry);
         }
-        sqlite3_finalize(stmt);
+        tui_take_input();
         tui_refresh();
     }
 
