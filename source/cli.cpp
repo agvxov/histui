@@ -1,28 +1,40 @@
+#include "cli.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <map>
-#include <string>
 
 using namespace std;
 
 [[ noreturn ]]
 void version() {
-    puts("Histui "
-    #include "version.inc"
+    puts(
+    # include "version.inc"
     );
 
     exit(0);
 }
 
 [[ noreturn ]]
-void usage(int exit_value = 0) {
+void usage(int exit_value) {
     // TODO
+    puts(
+        "histui [options] <verb>\n"
+        "\tOptions:\n"
+        "\t\t-v --version\n"
+        "\t\t-h --help\n"
+        "\tVerbs:\n"
+        "\t\tenable : print a bash script to enable histui in the current shell\n"
+        "\t\ttui    : run histui normally\n"
+    );
     exit(exit_value);
 }
 
-void global_options(const int argc, const char * const * const argv) {
-    for(int i = 0; i < argc; i++) {
+void parse_global_options(const int argc, const char * const * const argv) {
+    for(int i = 1; i < argc; i++) {
+        if (argv[i][0] != '-') {
+            return;
+        }
         if (not strcmp(argv[i], "-v")
         ||  not strcmp(argv[i], "--version")) {
             version();
@@ -34,9 +46,18 @@ void global_options(const int argc, const char * const * const argv) {
     }
 }
 
-typedef signed (*mainlike_t)(int argc, char * * argv);
-map<const char*, mainlike_t> verb_table = {
-    {"tui", tui_main},
-    {"import", import_main},
-    {"export", export_main},
-};
+verb_t get_verb(const int argc, const char * const * const argv) {
+    for(int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') {
+            continue;
+        }
+        if (not strcmp(argv[i], "tui")) {
+            return TUI;
+        }
+        if (not strcmp(argv[i], "enable")) {
+            return ENABLE;
+        }
+        return ERROR;
+    }
+    return ERROR;
+}

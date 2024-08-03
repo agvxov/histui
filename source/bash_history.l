@@ -2,13 +2,12 @@
     #include "storage.hpp"
     long timestamp;
 %}
+%option nodefault
 %option noyywrap
+%option nounput
 %%
-\#[[:digit:]]+  {
-    timestamp = strtoll(yytext+1, NULL, 10);
+\#[[:digit:]]+  { timestamp = strtoll(yytext+1, NULL, 10);
 }
-[^\#\n].*  {
-    insert_entry(timestamp, yytext);
-}
-\n  { ; }
+.*              { insert_entry(timestamp, yytext); }
+\n              { ; }
 %%

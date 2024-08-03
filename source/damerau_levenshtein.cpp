@@ -65,7 +65,7 @@ damerau_levenshtein_(
 }
 
 /*
-  function to determine damerau-levenshtein distance
+  sqlite3 wrapper to determine damerau-levenshtein distance
   damerau_levenshtein(src,dts) => int
 */
 void
@@ -85,8 +85,28 @@ damerau_levenshtein(
   sqlite3_result_int(context, distance);
 }
 
+// XXX
+void
+damerau_levenshtein_substring(
+  sqlite3_context *context,
+  [[maybe_unused]] int argc,
+  sqlite3_value **argv
+){
+    
+  const char *const s    = (const char *)sqlite3_value_text(argv[0]);
+  const char *const t    = (const char *)sqlite3_value_text(argv[1]);
+  int n = strlen(s); 
+  int m = strlen(t);
+  n = (n < m ? n : m);
+  m = n;
+
+  const int distance = damerau_levenshtein_(n, s, m, t);
+
+  sqlite3_result_int(context, distance);
+}
+
 /*
-  function ensure damerau-levenshtein distance
+  sqlite wrapper to ensure damerau-levenshtein distance
   damerau_levenshtein(src,dts,max_distance) => bool
 */
 void 
