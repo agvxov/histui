@@ -5,30 +5,53 @@
 #include <ncurses.h>
 #include <readline/readline.h>
 
-// XXX
-#include <cstdlib>
+#include <stdlib.h>
+
+extern bool do_run;
+
+size_t entry_lines;
+bool is_input_changed = true;
 
 static WINDOW * main_window;
 static WINDOW * entry_window;
 static WINDOW * input_window;
+static WINDOW * version_window;
 
 static int input_available = false;
-static char input;
+static int input;
+
+size_t selection_offset   = 0;
+size_t selection_relative = 0;
+static size_t entry_line_index   = 0;
+
+static char version_string[] =
+#  include "version.inc"
+;
 
 static void refresh_input(void);
 
 int init_tui(void) {
     // Ncurses
 	initscr();
+    nonl();
+    cbreak();
 	noecho();
 	curs_set(0);
+    keypad(stdscr, TRUE);
 
-	main_window   = newwin(LINES-1, COLS, 0, 0);
-    entry_window  = subwin(main_window, LINES-3, COLS-2, 1, 1);
-    input_window  = newwin(1, COLS, LINES-1, 0);
+    entry_lines = LINES-3;
+
+	main_window    = newwin(LINES-1, COLS, 0, 0);
+    entry_window   = subwin(main_window, entry_lines, COLS-2, 1, 1);
+    version_window = subwin(main_window, 1, strlen(version_string), 0, 5);
+    input_window   = newwin(1, COLS, LINES-1, 0);
     refresh();
 
     box(main_window, 0, 0);
+
+    // XXX
+    waddstr(version_window, version_string);
+    wrefresh(version_window);
 
 	// Readline
 	rl_bind_key('\t', rl_insert);
@@ -69,13 +92,23 @@ void tui_append_back(const entry_t entry) {
     char time_buffer[TIME_BUFFER_SIZE];
     strftime(time_buffer, TIME_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
 
-    wprintw(entry_window, "%s  %s\n",
-                            time_buffer,
-                            entry.command
+    if (entry_line_index == selection_relative) {
+        wattron(entry_window, A_REVERSE);
+    }
+    mvwprintw(entry_window, (entry_lines-1)-entry_line_index, 0,
+                    "%s  %s\n",
+                        time_buffer,
+                        entry.command
                 );
+    if (entry_line_index == selection_relative) {
+        wattroff(entry_window, A_REVERSE);
+    }
+
+    ++entry_line_index;
 }
 
 static void refresh_input(void) {
+    entry_line_index = 0;
 	wmove(input_window, 0, 0);
 	wclrtoeol(input_window);
 	waddstr(input_window, "$ ");
@@ -94,6 +127,34 @@ void tui_refresh(void) {
 
 void tui_take_input(void) {
 	input = wgetch(stdscr);
-	input_available = true;
-	rl_callback_read_char();
+    switch (input) {
+        case CTRL('p'):
+        case CTRL('k'): {
+            if (selection_relative != entry_lines-1) {
+                ++selection_relative;
+            } else {
+                ++selection_offset;
+                is_input_changed = true;
+            }
+        } break;
+        case CTRL('n'):
+        case CTRL('j'): {
+            if (selection_relative != 0) {
+                --selection_relative;
+            } else {
+                if (selection_offset != 0) {
+                    --selection_offset;
+                    is_input_changed = true;
+                }
+            }
+        } break;
+        case '\r': {
+            do_run = false;
+        } break;
+        default: {
+            input_available = true;
+            rl_callback_read_char();
+            is_input_changed = true;
+        } break;
+    }
 }

@@ -1,7 +1,6 @@
 .PHONY: clean run
 
 ifeq (${DEBUG}, 1)
-  LFLAGS   += --debug --trace
   CXXFLAGS += -DDEBUG -O0 -ggdb -fno-inline	
   WRAP     := valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all 
 else
@@ -15,7 +14,7 @@ LINKasd  += $$(pkgconf --libs ncurses readline sqlite3)
 
 OBJECT.d:=object/
 SOURCE.d:=source/
-SOURCE:=bash_history.yy.cpp main.cpp tui.cpp storage.cpp damerau_levenshtein.cpp
+SOURCE:=bash_history.yy.cpp main.cpp cli.cpp tui.cpp storage.cpp damerau_levenshtein.cpp
 OBJECT:=$(addprefix ${OBJECT.d},$(addsuffix .o,$(basename ${SOURCE})))
 SOURCE:=$(addprefix ${SOURCE.d},${SOURCE})
 
@@ -25,7 +24,7 @@ ${OUTPUT}: ${OBJECT}
 	${LINK.cpp} ${OBJECT} ${LINKasd} -o ${OUTPUT}
 
 object/%.yy.cpp: source/%.l
-	${LEX} ${LFLAGS} --prefix=$*_ --header-file=$(basename $@).hpp -o $@ $<
+	${LEX} --prefix=$*_ --header-file=$(basename $@).hpp -o $@ $<
 
 object/%.o: object/%.l.cpp
 	${COMPILE.cpp} $< -o $@
