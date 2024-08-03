@@ -43,7 +43,7 @@ void query(const char * const string, const size_t limit, const size_t offset) {
     const char * sql_query;
     if (string[0] != '\0') {
         sql_query = "SELECT * FROM entries "
-                        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(data, ?) "
+                        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(LOWER(data), LOWER(?)) "
                         "LIMIT ? "
                         "OFFSET ?;"
                     ;
