@@ -41,3 +41,6 @@ clean:
 
 test:
 	${WRAP} ./${OUTPUT}
+
+install:
+	cp ${OUT} ~/bin/

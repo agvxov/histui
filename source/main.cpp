@@ -6,20 +6,37 @@
 
 bool do_run = true;
 
-void init() {
+void init(void);
+void deinit(void);
+
+void init(void) {
     setlocale(LC_TIME, "C");
     init_storage();
-    bash_history_in = fopen("/home/anon/stow/.cache/.bash_history", "r");
+
+    char * history_file_path = getenv("HISTFILE");
+    if (!history_file_path) {
+        fputs("$HISTFILE is not set, try exporting it.\n", stderr);
+        deinit();
+        exit(1);
+    }
+
+    bash_history_in = fopen(history_file_path, "r");
+    if (!bash_history_in) {
+        fputs("Failed to open history file.\n", stderr);
+        deinit();
+        exit(1);
+    }
+
     bash_history_lex();
+
     init_tui();
 }
 
-void deinit() {
+void deinit(void) {
     deinit_tui();
     deinit_storage();
 }
 
-[[ noreturn ]]
 void enable() {
     // XXX one day...
     /*
@@ -31,7 +48,7 @@ void enable() {
         R"delim(
 function _histui_run() {
     COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
-    histui tui 3> "${COMMANDFILE}"
+    export HISTFILE histui tui 3> "${COMMANDFILE}"
     READLINE_LINE=$(cat "${COMMANDFILE}")
     READLINE_POINT=${#READLINE_LINE}
 }
