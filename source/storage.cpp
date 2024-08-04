@@ -4,7 +4,19 @@
 #include <sqlite3.h>
 #include "damerau_levenshtein.hpp"
 
-//const char * * const query_method;
+const char * const * query_method = &levenstein_caseless_query;
+const char * const levenstein_query = 
+    "SELECT * FROM entries "
+        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(data, ?) "
+        "LIMIT ? "
+        "OFFSET ?;"
+;
+const char * const levenstein_caseless_query =
+    "SELECT * FROM entries "
+        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(LOWER(data), LOWER(?)) "
+        "LIMIT ? "
+        "OFFSET ?;"
+;
 
 static sqlite3 * db;
 static sqlite3_stmt * stmt = NULL;
@@ -44,11 +56,7 @@ void query(const char * const string, const size_t limit, const size_t offset) {
     sqlite3_finalize(stmt);
     const char * sql_query;
     if (string[0] != '\0') {
-        sql_query = "SELECT * FROM entries "
-                        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(LOWER(data), LOWER(?)) "
-                        "LIMIT ? "
-                        "OFFSET ?;"
-                    ;
+        sql_query = *query_method;
         sqlite3_prepare_v2(db, sql_query, -1, &stmt, 0);
         sqlite3_bind_text(stmt, 1, string, -1, SQLITE_TRANSIENT);
         sqlite3_bind_int64(stmt, 2, (long)limit);
