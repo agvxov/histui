@@ -14,7 +14,7 @@ LINKasd  += $$(pkgconf --libs ncurses readline sqlite3)
 
 OBJECT.d:=object/
 SOURCE.d:=source/
-SOURCE:=bash_history.yy.cpp main.cpp cli.cpp tui.cpp storage.cpp damerau_levenshtein.cpp
+SOURCE:=argument_yy.tab.cpp bash_history.yy.cpp main.cpp cli.cpp tui.cpp storage.cpp damerau_levenshtein.cpp
 OBJECT:=$(addprefix ${OBJECT.d},$(addsuffix .o,$(basename ${SOURCE})))
 SOURCE:=$(addprefix ${SOURCE.d},${SOURCE})
 
@@ -24,7 +24,10 @@ ${OUTPUT}: ${OBJECT}
 	${LINK.cpp} ${OBJECT} ${LINKasd} -o ${OUTPUT}
 
 object/%.yy.cpp: source/%.l
-	${LEX} --prefix=$*_ --header-file=$(basename $@).hpp -o $@ $<
+	flex --prefix=$*_ --header-file=$(basename $@).hpp -o $@ $<
+
+object/%.tab.cpp: source/%.y
+	bison --name-prefix=$*_ --header=$(basename $@).hpp -o $@ $<
 
 object/%.o: object/%.l.cpp
 	${COMPILE.cpp} $< -o $@

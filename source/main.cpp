@@ -40,17 +40,19 @@ bind -x '"\e[A": _histui_run'
 bind -x '"\C-r": _histui_run'
         )delim"
     );
-    exit(0);
+}
+
+void export_result(const char * const result) {
+    int fd[2];
+    pipe(fd);
+    dprintf(3, result);
+    close(fd[0]);
+    close(fd[1]);
 }
 
 signed main(int argc, char * argv[]) {
-    parse_global_options(argc, argv);
-    verb_t verb = get_verb(argc, argv);
-    switch (verb) {
-        case ENABLE: enable();
-        case ERROR:  usage(1);
-        case TUI:    break;
-    }
+    // NOTE: never returns on error
+    parse_arguments(argc, argv);
 
     init();
 
@@ -72,11 +74,7 @@ signed main(int argc, char * argv[]) {
     }
 
     query(rl_line_buffer, 1, selection_offset + selection_relative);
-    int fd[2];
-    pipe(fd);
-    dprintf(3, get_entry().command);
-    close(fd[0]);
-    close(fd[1]);
+    export_result(get_entry().command);
 
     deinit();
 
