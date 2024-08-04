@@ -43,4 +43,4 @@ test:
 	${WRAP} ./${OUTPUT}
 
 install:
-	cp ${OUT} ~/bin/
+	cp ${OUTPUT} ~/bin/

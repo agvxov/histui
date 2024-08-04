@@ -2,6 +2,10 @@
 #include <stddef.h>
 #include "entry.h"
 
+extern const char * const * query_method;
+extern const char * const levenstein_query;
+extern const char * const levenstein_caseless_query;
+
 int init_storage(void);
 int deinit_storage(void);
 

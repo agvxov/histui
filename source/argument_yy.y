@@ -2,7 +2,7 @@
 %token TUI ENABLE
 %token LEVENSTEIN
 %{
-    #include "stdio.h"
+    #include "cli.hpp"
     extern void usage(void);
     extern void version(void);
     extern void enable(void);
