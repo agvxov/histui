@@ -38,7 +38,7 @@ void enable(void) {
         R"delim(
 function _histui_run() {
     COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
-    export HISTFILE histui tui 3> "${COMMANDFILE}"
+    HISTFILE=$HISTFILE histui tui 3> "${COMMANDFILE}"
     READLINE_LINE=$(cat "${COMMANDFILE}")
     READLINE_POINT=${#READLINE_LINE}
 }
