@@ -33,7 +33,7 @@ int argument_yy_lex(void) {
 }
 
 void argument_yy_error([[ maybe_unused ]] const char * const s) {
-    puts("Argument parsing failed.");
+    fputs("Argument parsing failed.\n", stderr);
     usage();
     exit(2);
 }
