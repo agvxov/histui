@@ -1,11 +1,8 @@
 #include "tui.hpp"
 
 #include <time.h>
-#include <locale.h>
 #include <ncurses.h>
 #include <readline/readline.h>
-
-#include <stdlib.h>
 
 extern bool do_run;
 

@@ -4,7 +4,6 @@
 #include <sqlite3.h>
 #include "damerau_levenshtein.hpp"
 
-const char * const * query_method = &levenstein_caseless_query;
 const char * const levenstein_query = 
     "SELECT * FROM entries "
         "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(data, ?) "
@@ -17,6 +16,7 @@ const char * const levenstein_caseless_query =
         "LIMIT ? "
         "OFFSET ?;"
 ;
+const char * const * query_method = &levenstein_caseless_query;
 
 static sqlite3 * db;
 static sqlite3_stmt * stmt = NULL;

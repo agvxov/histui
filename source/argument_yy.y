@@ -3,11 +3,6 @@
 %token LEVENSTEIN
 %{
     #include "cli.hpp"
-    extern void usage(void);
-    extern void version(void);
-    extern void enable(void);
-    extern void argument_yy_error(const char * const s);
-    extern int argument_yy_lex(void);
 %}
 %%
 histui_args: global_args verb_and_args
