@@ -37,28 +37,6 @@ void deinit(void) {
     deinit_storage();
 }
 
-void enable() {
-    // XXX one day...
-    /*
-    puts(
-    # embed "histui_enable.sh.inc"
-    );
-    */
-    puts(
-        R"delim(
-function _histui_run() {
-    COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
-    export HISTFILE histui tui 3> "${COMMANDFILE}"
-    READLINE_LINE=$(cat "${COMMANDFILE}")
-    READLINE_POINT=${#READLINE_LINE}
-}
-
-bind -x '"\e[A": _histui_run'
-bind -x '"\C-r": _histui_run'
-        )delim"
-    );
-}
-
 void export_result(const char * const result) {
     int fd[2];
     pipe(fd);
@@ -67,7 +45,7 @@ void export_result(const char * const result) {
     close(fd[1]);
 }
 
-signed main(int argc, char * argv[]) {
+signed main(const int argc, const char * const * const argv) {
     // NOTE: never returns on error
     parse_arguments(argc, argv);
 

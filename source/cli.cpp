@@ -27,6 +27,28 @@ void usage(void) {
     );
 }
 
+void enable(void) {
+    // XXX one day...
+    /*
+    puts(
+    # embed "histui_enable.sh.inc"
+    );
+    */
+    puts(
+        R"delim(
+function _histui_run() {
+    COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
+    export HISTFILE histui tui 3> "${COMMANDFILE}"
+    READLINE_LINE=$(cat "${COMMANDFILE}")
+    READLINE_POINT=${#READLINE_LINE}
+}
+
+bind -x '"\e[A": _histui_run'
+bind -x '"\C-r": _histui_run'
+        )delim"
+    );
+}
+
 int argument_yy_lex(void) {
     static int i = 0;
     return arg_tokens[i++];

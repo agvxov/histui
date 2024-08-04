@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TUI_HPP
+#define TUI_HPP
+
 #include <stddef.h>
 #include "entry.h"
 
@@ -15,3 +17,5 @@ void tui_refresh(void);
 void tui_take_input(void);
 
 void tui_append_back(const entry_t entry);
+
+#endif
