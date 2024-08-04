@@ -128,6 +128,7 @@ void tui_refresh(void) {
 void tui_take_input(void) {
 	input = wgetch(stdscr);
     switch (input) {
+        case KEY_UP:
         case CTRL('p'):
         case CTRL('k'): {
             if (selection_relative != entry_lines-1) {
@@ -137,6 +138,7 @@ void tui_take_input(void) {
                 is_input_changed = true;
             }
         } break;
+        case KEY_DOWN:
         case CTRL('n'):
         case CTRL('j'): {
             if (selection_relative != 0) {
