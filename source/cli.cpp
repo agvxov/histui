@@ -4,19 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-using namespace std;
+#include "argument_yy.tab.hpp"
 
-[[ noreturn ]]
+int * arg_tokens;
+
 void version() {
     puts(
     # include "version.inc"
     );
-
-    exit(0);
 }
 
-[[ noreturn ]]
-void usage(int exit_value) {
+void usage(void) {
     // TODO
     puts(
         "histui [options] <verb>\n"
@@ -27,37 +25,56 @@ void usage(int exit_value) {
         "\t\tenable : print a bash script to enable histui in the current shell\n"
         "\t\ttui    : run histui normally\n"
     );
-    exit(exit_value);
 }
 
-void parse_global_options(const int argc, const char * const * const argv) {
-    for(int i = 1; i < argc; i++) {
-        if (argv[i][0] != '-') {
-            return;
-        }
-        if (not strcmp(argv[i], "-v")
-        ||  not strcmp(argv[i], "--version")) {
-            version();
-        }
-        if (not strcmp(argv[i], "-h")
-        ||  not strcmp(argv[i], "--help")) {
-            usage();
-        }
-    }
+int argument_yy_lex(void) {
+    static int i = 0;
+    return arg_tokens[i++];
 }
 
-verb_t get_verb(const int argc, const char * const * const argv) {
-    for(int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            continue;
-        }
-        if (not strcmp(argv[i], "tui")) {
-            return TUI;
-        }
-        if (not strcmp(argv[i], "enable")) {
-            return ENABLE;
-        }
-        return ERROR;
+void argument_yy_error([[ maybe_unused ]] const char * const s) {
+    puts("Argument parsing failed.");
+    usage();
+    exit(2);
+}
+
+void parse_arguments(const int argc, const char * const * const argv) {
+    if (argc < 2) {
+        usage();
+        exit(1);
     }
-    return ERROR;
+
+    /* Lexical analysis of a poor man.
+     * Using Flex would be problematic because our input
+     *  is not stored in an actual buffer (not in a defined
+     *  behaviour way anyways).
+     */
+    int tokens[argc];
+    int token_empty_head = 0;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "--help")
+        ||  !strcmp(argv[i], "-h")) {
+            tokens[token_empty_head++] = HELP;
+        } else
+        if (!strcmp(argv[i], "--version")
+        ||  !strcmp(argv[i], "-v")) {
+            tokens[token_empty_head++] = VERSION;
+        } else
+        if (!strcmp(argv[i], "tui")) {
+            tokens[token_empty_head++] = TUI;
+        } else
+        if (!strcmp(argv[i], "enable")) {
+            tokens[token_empty_head++] = ENABLE;
+        } else
+        if (!strcmp(argv[i], "--levenstein")) {
+            tokens[token_empty_head++] = LEVENSTEIN;
+        } else {
+            tokens[token_empty_head++] = YYUNDEF;
+        }
+    }
+    tokens[token_empty_head++] = YYEOF;
+
+    arg_tokens = tokens;
+
+    argument_yy_parse();
 }

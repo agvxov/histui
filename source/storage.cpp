@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include "damerau_levenshtein.hpp"
 
+//const char * * const query_method;
+
 static sqlite3 * db;
 static sqlite3_stmt * stmt = NULL;
 
