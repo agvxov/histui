@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include "entry.h"
 
+extern bool is_levenstein;
+extern bool is_caseless;
+
 int init_storage(void);
 int deinit_storage(void);
 

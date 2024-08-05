@@ -1,8 +1,9 @@
 %token HELP VERSION
 %token TUI ENABLE
-%token LEVENSTEIN
+%token LEVENSTEIN CASELESS
 %{
     #include "cli.hpp"
+    #include "storage.hpp"
 %}
 %%
 histui_args: global_args verb_and_args
@@ -18,7 +19,8 @@ verb_and_args: ENABLE   { enable(); exit(0); }
     ;
 
 tui_args: %empty
-    | LEVENSTEIN        { ; }
+    | LEVENSTEIN tui_args { is_levenstein = true; }
+    | CASELESS   tui_args { is_caseless   = true; }
     ;
 
 %%
