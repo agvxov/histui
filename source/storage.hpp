@@ -7,12 +7,12 @@
 extern bool is_levenstein;
 extern bool is_caseless;
 
-int init_storage(void);
-int deinit_storage(void);
+extern int init_storage(void);
+extern int deinit_storage(void);
 
-int insert_entry(int timestamp, const char * const command);
-void query(const char * const string, const size_t limit, const size_t offset);
-void requery(void);
-entry_t get_entry(void);
+extern int insert_entry(const entry_t entry);
+extern void query(const char * const string, const size_t limit, const size_t offset);
+extern void requery(void);
+extern entry_t get_entry(void);
 
 #endif

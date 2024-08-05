@@ -1,4 +1,5 @@
 %{
+    #include "entry.h"
     #include "storage.hpp"
     long timestamp;
 %}
@@ -8,6 +9,6 @@
 %%
 \#[[:digit:]]+  { timestamp = strtoll(yytext+1, NULL, 10);
 }
-.*              { insert_entry(timestamp, yytext); }
+.*              { insert_entry((entry_t){ timestamp, yytext }); }
 \n              { ; }
 %%
