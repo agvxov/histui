@@ -15,15 +15,16 @@ void version() {
 }
 
 void usage(void) {
-    // TODO
     puts(
         "histui [options] <verb>\n"
         "\tOptions:\n"
         "\t\t-v --version\n"
         "\t\t-h --help\n"
         "\tVerbs:\n"
-        "\t\tenable : print a bash script to enable histui in the current shell\n"
-        "\t\ttui    : run histui normally\n"
+        "\t\tenable            : print a bash script to enable histui in the current shell\n"
+        "\t\ttui [tui-options] : run histui normally\n"
+        "\t\t\t--caseless   : ignore case while searching\n"
+        "\t\t\t--levenstein : use Damerau-Levenshtein while searching\n"
     );
 }
 
@@ -38,7 +39,10 @@ void enable(void) {
         R"delim(
 function _histui_run() {
     COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
-    HISTFILE=$HISTFILE histui tui 3> "${COMMANDFILE}"
+    if ! [ -v HISTUICMD ]; then
+        HISTUICMD="histui tui"
+    fi
+    HISTFILE=$HISTFILE ${HISTUICMD} 3> "${COMMANDFILE}"
     READLINE_LINE=$(cat "${COMMANDFILE}")
     READLINE_POINT=${#READLINE_LINE}
 }
@@ -90,6 +94,9 @@ void parse_arguments(const int argc, const char * const * const argv) {
         } else
         if (!strcmp(argv[i], "--levenstein")) {
             tokens[token_empty_head++] = LEVENSTEIN;
+        } else
+        if (!strcmp(argv[i], "--caseless")) {
+            tokens[token_empty_head++] = CASELESS;
         } else {
             tokens[token_empty_head++] = YYUNDEF;
         }

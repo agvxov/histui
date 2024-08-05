@@ -4,6 +4,26 @@
 #include <sqlite3.h>
 #include "damerau_levenshtein.hpp"
 
+/* I would heavily prefer to not have dynamically generated SQL.
+ * This might became a scaling issue in the future tho,
+ *  but untill then hardcoding will work.
+ */
+
+bool is_levenstein = false;
+bool is_caseless   = false;
+
+const char * const literal_query =
+    "SELECT * FROM entries "
+        "WHERE data GLOB CONCAT('*', ?, '*') "
+        "LIMIT ? "
+        "OFFSET ?;"
+;
+const char * const literal_caseless_query =
+    "SELECT * FROM entries "
+        "WHERE data LIKE CONCAT('%', ?, '%') "
+        "LIMIT ? "
+        "OFFSET ?;"
+;
 const char * const levenstein_query = 
     "SELECT * FROM entries "
         "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(data, ?) "
@@ -48,6 +68,20 @@ int insert_entry(int timestamp, const char * const command) {
     sqlite3_bind_text(stmt, 2, command, -1, SQLITE_STATIC);
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
+
+    if (not is_levenstein) {
+        if (not is_caseless) {
+            query_method = &literal_query;
+        } else {
+            query_method = &literal_caseless_query;
+        }
+    } else {
+        if (not is_caseless) {
+            query_method = &levenstein_query;
+        } else {
+            query_method = &levenstein_caseless_query;
+        }
+    }
 
     return 0;
 }
