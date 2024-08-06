@@ -1,4 +1,4 @@
-+ make (potentially slow) queries cancel using multi threading
-+ scroll lags
++ scroll flashes
 + technical dept in tui.cpp
-+ migrate to C
++ man page
++ readme

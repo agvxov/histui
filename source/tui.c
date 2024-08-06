@@ -1,4 +1,4 @@
-#include "tui.hpp"
+#include "tui.h"
 
 #include <time.h>
 #include <ncurses.h>
@@ -59,22 +59,21 @@ int init_tui(void) {
 	rl_deprep_term_function = NULL;
 	rl_change_environment = 0;
 
-	rl_getc_function = []([[maybe_unused]] FILE* ignore){
-		input_available = false;
-		return (int)input;
-	};
-	rl_input_available_hook = []{
-		return input_available;
-	};
-	rl_redisplay_function = refresh_input;
+    int getc_function([[maybe_unused]] FILE* ignore) { return (int)(input_available = false); }
+    int return_input_available(void) { return input_available; }
+	rl_getc_function        = getc_function;
+	rl_input_available_hook = return_input_available;
+	rl_redisplay_function   = refresh_input;
     /* We must specify an input handler or readline chimps out,
      *  but we dont want the line to be actually submittable,
      *  (search is continous and that would delete what the user
      *   has typedso far)
      *  so we also override enter to do nothing.
      */
-	rl_callback_handler_install("", []([[maybe_unused]] char *line){ ; });
-    rl_bind_key('\n', []([[maybe_unused]] int i, [[maybe_unused]] int h){ return 0; });
+    void no_op_handler([[maybe_unused]] char *line) { ; }
+    int  no_op_bind([[maybe_unused]] int i, [[maybe_unused]] int h) { return 0; }
+	rl_callback_handler_install("", no_op_handler);
+    rl_bind_key('\n', no_op_bind);
 
     return 0;
 }

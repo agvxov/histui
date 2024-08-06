@@ -2,8 +2,9 @@
 %token TUI ENABLE
 %token LEVENSTEIN CASELESS
 %{
-    #include "cli.hpp"
-    #include "storage.hpp"
+    #include <stdlib.h>
+    #include "cli.h"
+    #include "storage.h"
     extern bool do_execute;
 %}
 %%
