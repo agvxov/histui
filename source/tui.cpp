@@ -29,7 +29,7 @@ int init_tui(void) {
     // Ncurses
 	initscr();
     nonl();
-    cbreak();
+    halfdelay(1);
 	noecho();
 	curs_set(0);
     keypad(stdscr, TRUE);
@@ -172,6 +172,7 @@ void tui_take_input(void) {
         case '\r': {
             do_run = false;
         } break;
+        case ERR: break;
         default: {
             input_available = true;
             rl_callback_read_char();
