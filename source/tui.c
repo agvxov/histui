@@ -59,7 +59,7 @@ int init_tui(void) {
 	rl_deprep_term_function = NULL;
 	rl_change_environment = 0;
 
-    int getc_function([[maybe_unused]] FILE* ignore) { return (int)(input_available = false); }
+    int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
     int return_input_available(void) { return input_available; }
 	rl_getc_function        = getc_function;
 	rl_input_available_hook = return_input_available;
