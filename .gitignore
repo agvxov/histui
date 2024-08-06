@@ -1,2 +1,4 @@
 histui
+.gdb_history
 object/
+*.out
