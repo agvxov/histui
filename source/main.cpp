@@ -1,6 +1,7 @@
 #include <locale.h>
 #include <pthread.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #include "cli.hpp"
 #include "bash_history.yy.hpp"
 #include "storage.hpp"
@@ -67,17 +68,10 @@ void export_result(const char * const result) {
 }
 
 void * async(void * arg) {
-    entry_t entry;
-
-    while (true) {
+    while (do_run) {
+        tui_take_input();
         if (is_input_changed) {
-            query(rl_line_buffer, entry_lines, selection_offset);
-            is_input_changed = false;
-        } else {
-            requery();
-        }
-        while (entry = get_entry(), entry.command != NULL) {
-            tui_append_back(entry);
+            cancel_all_queries();
         }
     }
 
@@ -85,7 +79,6 @@ void * async(void * arg) {
 }
 
 signed main(const int argc, const char * const * const argv) {
-    extern void testtest(void);
     // NOTE: never returns on error
     parse_arguments(argc, argv);
 
@@ -96,12 +89,23 @@ signed main(const int argc, const char * const * const argv) {
     pthread_t query_thread;
     pthread_create(&query_thread, NULL, async, NULL);
     while (do_run) {
-        tui_take_input();
-        if (is_input_changed) {
-            testtest();
+        entry_t entry;
+        if (do_redisplay) {
+            do_redisplay = false;
+            if (is_input_changed) {
+                is_input_changed = false;
+                query(rl_line_buffer, entry_lines, selection_offset);
+            } else {
+                requery();
+            }
+            while (entry = get_entry(), entry.command != NULL) {
+                tui_append_back(entry);
+            }
+            tui_refresh();
         }
-        tui_refresh();
+        usleep(1000);
     }
+    pthread_join(query_thread, NULL);
 
     query(rl_line_buffer, 1, selection_offset + selection_relative);
     export_result(get_entry().command);
