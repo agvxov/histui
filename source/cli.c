@@ -1,10 +1,10 @@
-#include "cli.hpp"
+#include "cli.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "argument_yy.tab.hpp"
+#include "argument_yy.tab.h"
 
 int * arg_tokens;
 
@@ -36,20 +36,18 @@ void enable(void) {
     );
     */
     puts(
-        R"delim(
-function _histui_run() {
-    COMMANDFILE="${XDG_CACHE_HOME}/histui_command.txt"
-    if ! [ -v HISTUICMD ]; then
-        HISTUICMD="histui tui"
-    fi
-    HISTFILE=$HISTFILE ${HISTUICMD} 3> "${COMMANDFILE}"
-    READLINE_LINE=$(cat "${COMMANDFILE}")
-    READLINE_POINT=${#READLINE_LINE}
-}
-
-bind -x '"\e[A": _histui_run'
-bind -x '"\C-r": _histui_run'
-        )delim"
+        "function _histui_run() {\n"
+        "    COMMANDFILE=\"${XDG_CACHE_HOME}/histui_command.txt\"\n"
+        "    if ! [ -v HISTUICMD ]; then\n"
+        "        HISTUICMD=\"histui tui\"\n"
+        "    fi\n"
+        "    HISTFILE=$HISTFILE ${HISTUICMD} 3> \"${COMMANDFILE}\"\n"
+        "    READLINE_LINE=$(cat \"${COMMANDFILE}\")\n"
+        "    READLINE_POINT=${#READLINE_LINE}\n"
+        "}\n"
+        "\n"
+        "bind -x '\"\\e[A\": _histui_run'\n"
+        "bind -x '\"\\C-r\": _histui_run'\n"
     );
 }
 

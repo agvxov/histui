@@ -1,6 +1,6 @@
 %{
     #include "entry.h"
-    #include "storage.hpp"
+    #include "storage.h"
     long timestamp;
 %}
 %option nodefault

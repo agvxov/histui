@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "entry.h"
 
-extern "C" char * rl_line_buffer;
+extern char * rl_line_buffer;
 
 extern size_t entry_lines;
 extern size_t selection_offset;

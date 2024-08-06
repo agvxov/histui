@@ -1,8 +1,9 @@
-#include "storage.hpp"
+#include "storage.h"
 
 #include <stddef.h>
+#include <iso646.h>
 #include <sqlite3.h>
-#include "damerau_levenshtein.hpp"
+#include "damerau_levenshtein.h"
 
 /* I would heavily prefer to not have dynamically generated SQL.
  * This might became a scaling issue in the future tho,

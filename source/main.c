@@ -2,10 +2,10 @@
 #include <pthread.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include "cli.hpp"
-#include "bash_history.yy.hpp"
-#include "storage.hpp"
-#include "tui.hpp"
+#include "cli.h"
+#include "bash_history.yy.h"
+#include "storage.h"
+#include "tui.h"
 
 bool do_run = true;
 bool do_execute = false;
@@ -60,14 +60,15 @@ void export_result(const char * const result) {
          * XXX: if anyone knows a better method, please tell me
          */
         int fd[2];
-        pipe(fd);
+        int rc = pipe(fd);
+        (void)rc;
         dprintf(3, result);
         close(fd[0]);
         close(fd[1]);
     }
 }
 
-void * async(void * arg) {
+void * async([[maybe_unused]] void * arg) {
     while (do_run) {
         tui_take_input();
         if (is_input_changed) {
