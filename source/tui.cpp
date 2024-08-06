@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <readline/readline.h>
 
+extern bool do_execute;
 size_t entry_lines;
 bool is_input_changed = true;
 
@@ -168,6 +169,10 @@ void tui_take_input(void) {
                 selection_offset = 0;
             }
             is_input_changed = true;
+        } break;
+        case CTRL('q'): {
+            do_execute = false;
+            do_run = false;
         } break;
         case '\r': {
             do_run = false;
