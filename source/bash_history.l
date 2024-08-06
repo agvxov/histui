@@ -5,7 +5,7 @@
 %}
 %option nodefault
 %option noyywrap
-%option nounput
+%option nounput noinput
 %%
 \#[[:digit:]]+  { timestamp = strtoll(yytext+1, NULL, 10);
 }

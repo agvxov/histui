@@ -68,7 +68,7 @@ void export_result(const char * const result) {
     }
 }
 
-void * async([[maybe_unused]] void * arg) {
+void * async_input([[maybe_unused]] void * arg) {
     while (do_run) {
         tui_take_input();
         if (is_input_changed) {
@@ -88,7 +88,7 @@ signed main(const int argc, const char * const * const argv) {
     tui_refresh();
 
     pthread_t query_thread;
-    pthread_create(&query_thread, NULL, async, NULL);
+    pthread_create(&query_thread, NULL, async_input, NULL);
     while (do_run) {
         entry_t entry;
         if (do_redisplay) {
