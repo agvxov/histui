@@ -66,24 +66,26 @@ void export_result(const char * const result) {
     }
 }
 
-void * async_query(void * arg) {
+void * async(void * arg) {
     entry_t entry;
 
-    if (is_input_changed) {
-        query(rl_line_buffer, entry_lines, selection_offset);
-        is_input_changed = false;
-    } else {
-        requery();
+    while (true) {
+        if (is_input_changed) {
+            query(rl_line_buffer, entry_lines, selection_offset);
+            is_input_changed = false;
+        } else {
+            requery();
+        }
+        while (entry = get_entry(), entry.command != NULL) {
+            tui_append_back(entry);
+        }
     }
-    while (entry = get_entry(), entry.command != NULL) {
-        tui_append_back(entry);
-    }
-    tui_refresh();
 
     return NULL;
 }
 
 signed main(const int argc, const char * const * const argv) {
+    extern void testtest(void);
     // NOTE: never returns on error
     parse_arguments(argc, argv);
 
@@ -92,10 +94,13 @@ signed main(const int argc, const char * const * const argv) {
     tui_refresh();
 
     pthread_t query_thread;
+    pthread_create(&query_thread, NULL, async, NULL);
     while (do_run) {
-        pthread_cancel(query_thread);
-        pthread_create(&query_thread, NULL, async_query, NULL);
         tui_take_input();
+        if (is_input_changed) {
+            testtest();
+        }
+        tui_refresh();
     }
 
     query(rl_line_buffer, 1, selection_offset + selection_relative);

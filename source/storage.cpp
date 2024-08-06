@@ -137,6 +137,10 @@ void requery(void) {
     sqlite3_reset(*stmt);
 }
 
+void testtest(void) {
+    sqlite3_interrupt(db);
+}
+
 entry_t get_entry(void) {
     if (sqlite3_step(*stmt) != SQLITE_ROW) {
         return (entry_t){
