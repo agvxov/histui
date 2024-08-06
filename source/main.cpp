@@ -1,4 +1,5 @@
 #include <locale.h>
+#include <pthread.h>
 #include <sys/ioctl.h>
 #include "cli.hpp"
 #include "bash_history.yy.hpp"
@@ -65,6 +66,23 @@ void export_result(const char * const result) {
     }
 }
 
+void * async_query(void * arg) {
+    entry_t entry;
+
+    if (is_input_changed) {
+        query(rl_line_buffer, entry_lines, selection_offset);
+        is_input_changed = false;
+    } else {
+        requery();
+    }
+    while (entry = get_entry(), entry.command != NULL) {
+        tui_append_back(entry);
+    }
+    tui_refresh();
+
+    return NULL;
+}
+
 signed main(const int argc, const char * const * const argv) {
     // NOTE: never returns on error
     parse_arguments(argc, argv);
@@ -73,18 +91,10 @@ signed main(const int argc, const char * const * const argv) {
 
     tui_refresh();
 
-    entry_t entry;
+    pthread_t query_thread;
     while (do_run) {
-        if (is_input_changed) {
-            query(rl_line_buffer, entry_lines, selection_offset);
-            is_input_changed = false;
-        } else {
-            requery();
-        }
-        while (entry = get_entry(), entry.command != NULL) {
-            tui_append_back(entry);
-        }
-        tui_refresh();
+        pthread_cancel(query_thread);
+        pthread_create(&query_thread, NULL, async_query, NULL);
         tui_take_input();
     }
 
