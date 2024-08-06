@@ -87,14 +87,16 @@ void tui_append_back(const entry_t entry) {
     struct tm *tm_info = localtime((time_t*)&entry.timestamp);
     const int TIME_BUFFER_SIZE = 30;
     char time_buffer[TIME_BUFFER_SIZE];
+    const int time_len = 19;
     strftime(time_buffer, TIME_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
 
     if (entry_line_index == selection_relative) {
         wattron(entry_window, A_REVERSE);
     }
     mvwprintw(entry_window, (entry_lines-1)-entry_line_index, 0,
-                    "%s  %s\n",
+                    "%s  %.*s",
                         time_buffer,
+                        COLS-2-time_len-2, // XXX: this is horrible
                         entry.command
                 );
     if (entry_line_index == selection_relative) {
@@ -119,10 +121,14 @@ void tui_refresh(void) {
     wrefresh(entry_window);
     wrefresh(main_window);
     refresh_input();
+
+    wclear(entry_window);
 }
 
 
 void tui_take_input(void) {
+    const size_t paging_size = entry_lines / 2;
+
 	input = wgetch(stdscr);
     switch (input) {
         case KEY_UP:
@@ -146,6 +152,23 @@ void tui_take_input(void) {
                     is_input_changed = true;
                 }
             }
+        } break;
+        case KEY_PPAGE:
+        case CTRL('u'): {
+            selection_offset += paging_size;
+            is_input_changed = true;
+        } break;
+        case KEY_NPAGE:
+        case CTRL('d'): {
+            if (selection_offset == 0) {
+                selection_relative = 0;
+            } else
+            if (selection_offset > paging_size) {
+                selection_offset -= paging_size;
+            } else {
+                selection_offset = 0;
+            }
+            is_input_changed = true;
         } break;
         case '\r': {
             do_run = false;
