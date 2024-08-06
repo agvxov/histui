@@ -92,6 +92,9 @@ void parse_arguments(const int argc, const char * const * const argv) {
         if (!strcmp(argv[i], "enable")) {
             tokens[token_empty_head++] = ENABLE;
         } else
+        if (!strcmp(argv[i], "--execute")) {
+            tokens[token_empty_head++] = EXECUTE;
+        } else
         if (!strcmp(argv[i], "--levenstein")) {
             tokens[token_empty_head++] = LEVENSTEIN;
         } else

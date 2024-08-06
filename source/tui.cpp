@@ -4,8 +4,6 @@
 #include <ncurses.h>
 #include <readline/readline.h>
 
-extern bool do_run;
-
 size_t entry_lines;
 bool is_input_changed = true;
 
@@ -127,6 +125,7 @@ void tui_refresh(void) {
 
 
 void tui_take_input(void) {
+    extern bool do_run;
     const size_t paging_size = entry_lines / 2;
 
 	input = wgetch(stdscr);

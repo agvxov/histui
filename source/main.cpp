@@ -1,10 +1,12 @@
 #include <locale.h>
+#include <sys/ioctl.h>
 #include "cli.hpp"
 #include "bash_history.yy.hpp"
 #include "storage.hpp"
 #include "tui.hpp"
 
 bool do_run = true;
+bool do_execute = false;
 
 void init(void);
 void deinit(void);
@@ -38,11 +40,29 @@ void deinit(void) {
 }
 
 void export_result(const char * const result) {
-    int fd[2];
-    pipe(fd);
-    dprintf(3, result);
-    close(fd[0]);
-    close(fd[1]);
+    if (do_execute) {
+        /* Inject the command and a newline to STDIN directly.
+         * Some systems could theoretically be configured to disallow it.
+         *  Not my problem.
+         */
+        for (size_t i = 0; i < strlen(result); i++) {
+            if (ioctl(STDIN_FILENO, TIOCSTI, &result[i]) == -1) {
+                perror("ioctl TIOCSTI");
+            }
+        }
+        const char newline = '\n';
+        ioctl(STDIN_FILENO, TIOCSTI, &newline);
+    } else {
+        /* Copy to a 3th pipe file descriptor which we can
+         *  scoop up from a file and copy with READLINE_LINE.
+         * XXX: if anyone knows a better method, please tell me
+         */
+        int fd[2];
+        pipe(fd);
+        dprintf(3, result);
+        close(fd[0]);
+        close(fd[1]);
+    }
 }
 
 signed main(const int argc, const char * const * const argv) {
