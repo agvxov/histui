@@ -137,7 +137,7 @@ void requery(void) {
     sqlite3_reset(*stmt);
 }
 
-void testtest(void) {
+void cancel_all_queries(void) {
     sqlite3_interrupt(db);
 }
 

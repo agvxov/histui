@@ -5,8 +5,10 @@
 #include <readline/readline.h>
 
 extern bool do_execute;
+
 size_t entry_lines;
 bool is_input_changed = true;
+bool do_redisplay     = true;
 
 static WINDOW * main_window;
 static WINDOW * entry_window;
@@ -30,7 +32,7 @@ int init_tui(void) {
     // Ncurses
 	initscr();
     nonl();
-    halfdelay(1);
+    cbreak();    //halfdelay(1);
 	noecho();
 	curs_set(0);
     keypad(stdscr, TRUE);
@@ -136,6 +138,7 @@ void tui_take_input(void) {
         case CTRL('k'): {
             if (selection_relative != entry_lines-1) {
                 ++selection_relative;
+                do_redisplay = true;
             } else {
                 ++selection_offset;
                 is_input_changed = true;
@@ -146,6 +149,7 @@ void tui_take_input(void) {
         case CTRL('j'): {
             if (selection_relative != 0) {
                 --selection_relative;
+                do_redisplay = true;
             } else {
                 if (selection_offset != 0) {
                     --selection_offset;
@@ -162,13 +166,15 @@ void tui_take_input(void) {
         case CTRL('d'): {
             if (selection_offset == 0) {
                 selection_relative = 0;
+                do_redisplay = true;
             } else
             if (selection_offset > paging_size) {
                 selection_offset -= paging_size;
+                is_input_changed = true;
             } else {
                 selection_offset = 0;
+                is_input_changed = true;
             }
-            is_input_changed = true;
         } break;
         case CTRL('q'): {
             do_execute = false;
@@ -183,5 +189,9 @@ void tui_take_input(void) {
             rl_callback_read_char();
             is_input_changed = true;
         } break;
+    }
+
+    if (is_input_changed) {
+        do_redisplay = true;
     }
 }
