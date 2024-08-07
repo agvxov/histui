@@ -4,6 +4,8 @@
 #include <ncurses.h>
 #include <readline/readline.h>
 
+#include "caret_notater.h"
+
 extern bool do_execute;
 
 size_t entry_lines;
@@ -91,6 +93,8 @@ void tui_append_back(const entry_t entry) {
     const int TIME_SIZE = 20;
     char time_buffer[TIME_SIZE];
     strftime(time_buffer, TIME_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
+    const size_t entry_len = strlen(entry.command);
+    char caret_notation_buffer[entry_len*2];
 
     if (entry_line_index == selection_relative) {
         wattron(entry_window, A_REVERSE);
@@ -99,7 +103,10 @@ void tui_append_back(const entry_t entry) {
                     "%s  %.*s",
                         time_buffer,
                         COLS-2-(TIME_SIZE-1)-2, // XXX: this is horrible
-                        entry.command
+                        string_to_caret_notation(entry.command,
+                                                    entry_len,
+                                                    caret_notation_buffer
+                                                )
                 );
     if (entry_line_index == selection_relative) {
         wattroff(entry_window, A_REVERSE);
