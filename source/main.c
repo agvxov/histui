@@ -68,17 +68,6 @@ void export_result(const char * const result) {
     }
 }
 
-void * async_input([[maybe_unused]] void * arg) {
-    while (do_run) {
-        tui_take_input();
-        if (is_input_changed) {
-            cancel_all_queries();
-        }
-    }
-
-    return NULL;
-}
-
 signed main(const int argc, const char * const * const argv) {
     // NOTE: never returns on error
     parse_arguments(argc, argv);
@@ -87,9 +76,17 @@ signed main(const int argc, const char * const * const argv) {
 
     tui_refresh();
 
+    void * async_input([[maybe_unused]] void * arg) {
+        while (do_run) {
+            tui_take_input();
+            if (is_input_changed) { cancel_all_queries(); }
+        }
+        return NULL;
+    }
     pthread_t query_thread;
     pthread_create(&query_thread, NULL, async_input, NULL);
     while (do_run) {
+      loop_start:
         entry_t entry;
         if (do_redisplay) {
             do_redisplay = false;
@@ -100,11 +97,12 @@ signed main(const int argc, const char * const * const argv) {
                 requery();
             }
             while (entry = get_entry(), entry.command != NULL) {
+                if (is_input_changed) { goto loop_start; }
                 tui_append_back(entry);
             }
             tui_refresh();
         }
-        usleep(1000);
+        usleep(200);
     }
     pthread_join(query_thread, NULL);
 

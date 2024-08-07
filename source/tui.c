@@ -7,57 +7,60 @@
 extern bool do_execute;
 
 size_t entry_lines;
+size_t selection_offset   = 0;
+size_t selection_relative = 0;
+
 bool is_input_changed = true;
 bool do_redisplay     = true;
 
-static WINDOW * main_window;
-static WINDOW * entry_window;
-static WINDOW * input_window;
-static WINDOW * version_window;
-
-static int input_available = false;
-static int input;
-
-size_t selection_offset   = 0;
-size_t selection_relative = 0;
-static size_t entry_line_index   = 0;
+/* "Cursor" position; the entry selected by the user
+ */
+static size_t entry_line_index = 0;
 
 static char version_string[] =
 #  include "version.inc"
 ;
 
+// Ncurses fun
+static WINDOW * main_window;
+static WINDOW * entry_window;
+static WINDOW * input_window;
+static WINDOW * version_window;
+
+// Readline requirements
+static int input_available = false;
+static int input;
+
+//
 static void refresh_input(void);
+static void full_redraw(void);
+
+static bool do_fullredraw = true;
 
 int init_tui(void) {
     // Ncurses
 	initscr();
     nonl();
-    cbreak();    //halfdelay(1);
+    cbreak();
 	noecho();
 	curs_set(0);
     keypad(stdscr, TRUE);
 
     entry_lines = LINES-3;
 
-	main_window    = newwin(LINES-1, COLS, 0, 0);
-    entry_window   = subwin(main_window, entry_lines, COLS-2, 1, 1);
-    version_window = subwin(main_window, 1, strlen(version_string), 0, 5);
-    input_window   = newwin(1, COLS, LINES-1, 0);
+	main_window    = newwin(LINES-1, COLS,       0, 0);
+    input_window   = newwin(      1, COLS, LINES-1, 0);
+    entry_window   = subwin(main_window, entry_lines,                 COLS-2, 1, 1);
+    version_window = subwin(main_window,           1, strlen(version_string), 0, 5);
     refresh();
-
-    box(main_window, 0, 0);
-
-    // XXX
-    waddstr(version_window, version_string);
-    wrefresh(version_window);
 
 	// Readline
 	rl_bind_key('\t', rl_insert);
-	rl_catch_signals = 0;
-	rl_catch_sigwinch = 0;
-	rl_prep_term_function = NULL;
+	rl_catch_signals        = 0;
+	rl_catch_sigwinch       = 0;
+	rl_change_environment   = 0;
+	rl_prep_term_function   = NULL;
 	rl_deprep_term_function = NULL;
-	rl_change_environment = 0;
 
     int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
     int return_input_available(void) { return input_available; }
@@ -85,10 +88,9 @@ int deinit_tui(void) {
 
 void tui_append_back(const entry_t entry) {
     struct tm *tm_info = localtime((time_t*)&entry.timestamp);
-    const int TIME_BUFFER_SIZE = 30;
-    char time_buffer[TIME_BUFFER_SIZE];
-    const int time_len = 19;
-    strftime(time_buffer, TIME_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
+    const int TIME_SIZE = 20;
+    char time_buffer[TIME_SIZE];
+    strftime(time_buffer, TIME_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
 
     if (entry_line_index == selection_relative) {
         wattron(entry_window, A_REVERSE);
@@ -96,17 +98,32 @@ void tui_append_back(const entry_t entry) {
     mvwprintw(entry_window, (entry_lines-1)-entry_line_index, 0,
                     "%s  %.*s",
                         time_buffer,
-                        COLS-2-time_len-2, // XXX: this is horrible
+                        COLS-2-(TIME_SIZE-1)-2, // XXX: this is horrible
                         entry.command
                 );
     if (entry_line_index == selection_relative) {
         wattroff(entry_window, A_REVERSE);
     }
 
+    if (getcury(entry_window) == (entry_lines-1)-entry_line_index) {
+        wclrtoeol(entry_window);
+    }
+
     ++entry_line_index;
 }
 
-static void refresh_input(void) {
+static
+void full_redraw(void) {
+    box(main_window, 0, 0);
+
+    waddstr(version_window, version_string);
+    wrefresh(version_window);
+
+    refresh_input();
+}
+
+static
+void refresh_input(void) {
     entry_line_index = 0;
 	wmove(input_window, 0, 0);
 	wclrtoeol(input_window);
@@ -117,12 +134,26 @@ static void refresh_input(void) {
 }
 
 void tui_refresh(void) {
-    wmove(entry_window, 0, 0);
-    wrefresh(entry_window);
-    wrefresh(main_window);
+    if (do_fullredraw) {
+        do_fullredraw = false;
+        full_redraw();
+        return;
+    }
+
+    if (entry_line_index+1 < entry_lines) {
+        while (entry_line_index != entry_lines) {
+            wmove(entry_window, entry_lines-entry_line_index++, 0);
+            wclrtoeol(entry_window);
+        }
+        wmove(entry_window, entry_lines-entry_line_index, 0);
+        wclrtoeol(entry_window);
+    }
+
     refresh_input();
 
-    wclear(entry_window);
+    wrefresh(entry_window);
+    wmove(entry_window, 0, 0);
+    wrefresh(main_window);
 }
 
 

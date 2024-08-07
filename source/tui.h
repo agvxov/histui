@@ -15,9 +15,11 @@ extern bool do_redisplay;
 
 extern int init_tui(void);
 extern int deinit_tui(void);
-extern void tui_refresh(void);
-extern void tui_take_input(void);
 
 extern void tui_append_back(const entry_t entry);
+
+extern void tui_refresh(void);
+
+extern void tui_take_input(void);
 
 #endif
