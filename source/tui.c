@@ -8,16 +8,21 @@
 
 extern bool do_execute;
 
-size_t entry_lines;
-size_t selection_offset   = 0;
+/* "Cursor" position; the entry selected by the user
+ */
 size_t selection_relative = 0;
+size_t selection_offset   = 0;
+size_t entry_lines;
 
 bool is_input_changed = true;
 bool do_redisplay     = true;
 
-/* "Cursor" position; the entry selected by the user
+/* Counter to signal which line to print to,
+ *  and saved counterpart which is used to
+ *  determine how many lines were printed.
  */
-static size_t entry_line_index = 0;
+static size_t entry_line_index      = 0;
+static size_t last_entry_line_index = 0;
 
 static char version_string[] =
 #  include "version.inc"
@@ -131,7 +136,6 @@ void full_redraw(void) {
 
 static
 void refresh_input(void) {
-    entry_line_index = 0;
 	wmove(input_window, 0, 0);
 	wclrtoeol(input_window);
 	waddstr(input_window, "$ ");
@@ -147,6 +151,7 @@ void tui_refresh(void) {
         return;
     }
 
+    last_entry_line_index = entry_line_index;
     if (entry_line_index+1 < entry_lines) {
         while (entry_line_index != entry_lines) {
             wmove(entry_window, entry_lines-entry_line_index++, 0);
@@ -155,6 +160,7 @@ void tui_refresh(void) {
         wmove(entry_window, entry_lines-entry_line_index, 0);
         wclrtoeol(entry_window);
     }
+    entry_line_index = 0;
 
     refresh_input();
 
@@ -173,6 +179,9 @@ void tui_take_input(void) {
         case KEY_UP:
         case CTRL('p'):
         case CTRL('k'): {
+            if (selection_relative == last_entry_line_index-2) {
+                break;
+            }
             if (selection_relative != entry_lines-1) {
                 ++selection_relative;
                 do_redisplay = true;
