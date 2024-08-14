@@ -23,19 +23,19 @@ static const char * const literal_caseless_query =
         "LIMIT ? "
         "OFFSET ?;"
 ;
-static const char * const levenstein_query = 
+static const char * const fuzzy_query = 
     "SELECT * FROM entries "
+        "WHERE BRAINDAMAGED_FUZZY_SEARCH(data, ?) "
         "GROUP BY data "
-        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(data, ?), "
-            "stamp DESC "
+        "ORDER BY stamp DESC "
         "LIMIT ? "
         "OFFSET ?;"
 ;
-static const char * const levenstein_caseless_query =
+static const char * const fuzzy_caseless_query =
     "SELECT * FROM entries "
+        "WHERE BRAINDAMAGED_FUZZY_SEARCH(LOWER(data), LOWER(?)) "
         "GROUP BY data "
-        "ORDER BY DAMERAU_LEVENSHTEIN_SUBSTRING(LOWER(data), LOWER(?)), "
-            "stamp DESC "
+        "ORDER BY stamp DESC "
         "LIMIT ? "
         "OFFSET ?;"
 ;

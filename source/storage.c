@@ -2,8 +2,8 @@
 
 #include <stddef.h>
 #include <iso646.h>
+#include <string.h>
 #include <sqlite3.h>
-#include "damerau_levenshtein.h"
 
 /* I would heavily prefer to not have dynamically generated SQL.
  * This might became a scaling issue in the future tho,
@@ -12,8 +12,8 @@
 #include "queries.inc"
 static const char * const * query_method;
 
-bool is_levenstein = false;
-bool is_caseless   = false;
+bool is_fuzzy    = false;
+bool is_caseless = false;
 
 static sqlite3 * db = NULL;
 
@@ -28,18 +28,18 @@ static sqlite3_stmt * query_stmt       = NULL;
 static sqlite3_stmt * empty_query_stmt = NULL;
 static sqlite3_stmt * * stmt;
 
+void braindamaged_fuzzy_search(sqlite3_context *context, [[maybe_unused]] int argc, sqlite3_value **argv);
+
 int init_storage(void) {
     sqlite3_open(":memory:", &db);
-    sqlite3_create_function(db, "damerau_levenshtein_substring", 2, SQLITE_ANY, 0, damerau_levenshtein_substring, NULL, NULL);
-    sqlite3_create_function(db,        "is_damerau_levenshtein", 3, SQLITE_ANY, 0,        is_damerau_levenshtein, NULL, NULL);
-    sqlite3_create_function(db,           "damerau_levenshtein", 2, SQLITE_ANY, 0,           damerau_levenshtein, NULL, NULL);
+    sqlite3_create_function(db, "braindamaged_fuzzy_search", 2, SQLITE_ANY, 0, braindamaged_fuzzy_search, NULL, NULL);
 
     static const char * sql_create_table = "CREATE TABLE entries (stamp INTEGER, data TEXT);";
     sqlite3_exec(db, sql_create_table, 0, 0, 0);
 
     sqlite3_prepare_v2(db, insert_entry_sql, -1, &insert_stmt, 0);
 
-    if (not is_levenstein) {
+    if (not is_fuzzy) {
         if (not is_caseless) {
             query_method = &literal_query;
         } else {
@@ -47,9 +47,9 @@ int init_storage(void) {
         }
     } else {
         if (not is_caseless) {
-            query_method = &levenstein_query;
+            query_method = &fuzzy_query;
         } else {
-            query_method = &levenstein_caseless_query;
+            query_method = &fuzzy_caseless_query;
         }
     }
     sqlite3_prepare_v2(db, *query_method, -1, &      query_stmt, 0);
@@ -112,4 +112,24 @@ entry_t get_entry(void) {
         .timestamp = sqlite3_column_int(*stmt, 0),
         .command   = (char*)sqlite3_column_text(*stmt, 1),
     };
+}
+
+void braindamaged_fuzzy_search(sqlite3_context *context, [[maybe_unused]] int argc, sqlite3_value **argv) {
+    const char * const db_text    = (const char *)sqlite3_value_text(argv[0]);
+    const char * const user_query = (const char *)sqlite3_value_text(argv[1]);
+
+    char mutable_user_query[strlen(user_query)+1];
+    strcpy(mutable_user_query, user_query);
+    const char* delim = " \t";
+    char * save;
+    char * s = strtok_r(mutable_user_query, delim, &save);
+
+    do{
+        if (!strstr(db_text, s)) {
+            sqlite3_result_int(context, 0);
+            return;
+        }
+    }while((s = strtok_r(NULL, delim, &save), s));
+
+    sqlite3_result_int(context, 1);
 }

@@ -14,7 +14,7 @@ LDLIBS   += $$(pkgconf --libs ncurses readline sqlite3)
 
 OBJECT.d:=object/
 SOURCE.d:=source/
-SOURCE:=argument_yy.tab.c bash_history.yy.c main.c cli.c tui.c storage.c damerau_levenshtein.c
+SOURCE:=argument_yy.tab.c bash_history.yy.c main.c cli.c tui.c storage.c
 OBJECT:=$(addprefix ${OBJECT.d},$(addsuffix .o,$(basename ${SOURCE})))
 SOURCE:=$(addprefix ${SOURCE.d},${SOURCE})
 

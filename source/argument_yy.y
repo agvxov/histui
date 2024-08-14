@@ -1,6 +1,6 @@
 %token HELP VERSION EXECUTE
 %token TUI ENABLE
-%token LEVENSTEIN CASELESS
+%token FUZZY CASELESS
 %{
     #include <stdlib.h>
     #include "cli.h"
@@ -21,9 +21,9 @@ verb_and_args: ENABLE   { enable(); exit(0); }
     ;
 
 tui_args: %empty
-    | EXECUTE    tui_args { do_execute    = true; }
-    | LEVENSTEIN tui_args { is_levenstein = true; }
-    | CASELESS   tui_args { is_caseless   = true; }
+    | EXECUTE  tui_args { do_execute  = true; }
+    | FUZZY    tui_args { is_fuzzy    = true; }
+    | CASELESS tui_args { is_caseless = true; }
     ;
 
 %%
