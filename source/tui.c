@@ -94,22 +94,21 @@ int deinit_tui(void) {
 }
 
 void tui_append_back(const entry_t entry) {
-    struct tm *tm_info = localtime((time_t*)&entry.timestamp);
-    const int TIME_SIZE = 20;
+    const int TIME_SIZE = 19 + 1;
     char time_buffer[TIME_SIZE];
-    strftime(time_buffer, TIME_SIZE, "%Y-%m-%d %H:%M:%S", tm_info);
-    const size_t entry_len = strlen(entry.command);
-    char caret_notation_buffer[entry_len*2];
+    strftime(time_buffer, TIME_SIZE, "%Y-%m-%d %H:%M:%S", localtime((time_t*)&entry.timestamp));
+    char caret_notation_buffer[(strlen(entry.command)*2)+1];
+    const size_t current_line_y = (entry_lines-1)-entry_line_index;
 
     if (entry_line_index == selection_relative) {
         wattron(entry_window, A_REVERSE);
     }
-    mvwprintw(entry_window, (entry_lines-1)-entry_line_index, 0,
+    mvwprintw(entry_window, current_line_y, 0,
                     "%s  %.*s",
                         time_buffer,
-                        COLS-2-(TIME_SIZE-1)-2, // XXX: this is horrible
+                        getmaxx(entry_window) - (TIME_SIZE-1) - /*space-padding*/2,
                         string_to_caret_notation(entry.command,
-                                                    entry_len,
+                                                    strlen(entry.command),
                                                     caret_notation_buffer
                                                 )
                 );
@@ -117,7 +116,10 @@ void tui_append_back(const entry_t entry) {
         wattroff(entry_window, A_REVERSE);
     }
 
-    if (getcury(entry_window) == (entry_lines-1)-entry_line_index) {
+    /* Only delete to the end of the line if the cursor did not overflow
+     *  to the line below from a long entry.
+     */
+    if ((size_t)getcury(entry_window) == current_line_y) {
         wclrtoeol(entry_window);
     }
 
@@ -152,12 +154,8 @@ void tui_refresh(void) {
     }
 
     last_entry_line_index = entry_line_index;
-    if (entry_line_index+1 < entry_lines) {
-        while (entry_line_index != entry_lines) {
-            wmove(entry_window, entry_lines-entry_line_index++, 0);
-            wclrtoeol(entry_window);
-        }
-        wmove(entry_window, entry_lines-entry_line_index, 0);
+    while (entry_line_index < entry_lines) {
+        wmove(entry_window, (entry_lines-1)-entry_line_index++, 0);
         wclrtoeol(entry_window);
     }
     entry_line_index = 0;
@@ -179,7 +177,7 @@ void tui_take_input(void) {
         case KEY_UP:
         case CTRL('p'):
         case CTRL('k'): {
-            if (selection_relative == last_entry_line_index-2) {
+            if (selection_relative == last_entry_line_index-1) {
                 break;
             }
             if (selection_relative != entry_lines-1) {

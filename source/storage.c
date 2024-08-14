@@ -64,7 +64,7 @@ static sqlite3 * db = NULL;
  * This should be slightly faster than continously repreparing
  *  and refinalizing.
  */
-static sqlite3_stmt * insert_stmt = NULL;
+static sqlite3_stmt * insert_stmt      = NULL;
 static sqlite3_stmt * query_stmt       = NULL;
 static sqlite3_stmt * empty_query_stmt = NULL;
 static sqlite3_stmt * * stmt;
