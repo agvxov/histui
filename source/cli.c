@@ -23,8 +23,8 @@ void usage(void) {
         "\tVerbs:\n"
         "\t\tenable            : print a bash script to enable histui in the current shell\n"
         "\t\ttui [tui-options] : run histui normally\n"
-        "\t\t\t--caseless   : ignore case while searching\n"
-        "\t\t\t--levenstein : use Damerau-Levenshtein while searching\n"
+        "\t\t\t--caseless : ignore case while searching\n"
+        "\t\t\t--fuzzy    : employ fuzzy searching\n"
     );
 }
 
@@ -93,8 +93,8 @@ void parse_arguments(const int argc, const char * const * const argv) {
         if (!strcmp(argv[i], "--execute")) {
             tokens[token_empty_head++] = EXECUTE;
         } else
-        if (!strcmp(argv[i], "--levenstein")) {
-            tokens[token_empty_head++] = LEVENSTEIN;
+        if (!strcmp(argv[i], "--fuzzy")) {
+            tokens[token_empty_head++] = FUZZY;
         } else
         if (!strcmp(argv[i], "--caseless")) {
             tokens[token_empty_head++] = CASELESS;

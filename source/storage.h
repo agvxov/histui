@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "entry.h"
 
-extern bool is_levenstein;
+extern bool is_fuzzy;
 extern bool is_caseless;
 
 extern int init_storage(void);
