@@ -5,15 +5,14 @@
 #include <string.h>
 #include <sqlite3.h>
 
-/* I would heavily prefer to not have dynamically generated SQL.
- * This might became a scaling issue in the future tho,
- *  but untill then hardcoding will work.
- */
-#include "queries.inc"
-static const char * const * query_method;
+#define SELECT       "SELECT * FROM entries "
+#define GROUP_SELECT "SELECT MAX(stamp), data FROM entries "
+#define ORDERING "ORDER BY stamp DESC "
+#define PAGING   "LIMIT ? OFFSET ? "
 
 bool is_fuzzy    = false;
 bool is_caseless = false;
+bool is_grouped  = false;
 
 static sqlite3 * db = NULL;
 
@@ -28,32 +27,58 @@ static sqlite3_stmt * query_stmt       = NULL;
 static sqlite3_stmt * empty_query_stmt = NULL;
 static sqlite3_stmt * * stmt;
 
-void braindamaged_fuzzy_search(sqlite3_context *context, [[maybe_unused]] int argc, sqlite3_value **argv);
+void braindamaged_fuzzy_search(sqlite3_context * context, [[maybe_unused]] int argc, sqlite3_value * * argv);
 
 int init_storage(void) {
+    // Create database
     sqlite3_open(":memory:", &db);
     sqlite3_create_function(db, "braindamaged_fuzzy_search", 2, SQLITE_ANY, 0, braindamaged_fuzzy_search, NULL, NULL);
 
-    static const char * sql_create_table = "CREATE TABLE entries (stamp INTEGER, data TEXT);";
+    const char * const sql_create_table = "CREATE TABLE entries (stamp INTEGER, data TEXT);";
     sqlite3_exec(db, sql_create_table, 0, 0, 0);
 
+    // Prepare inserts
+    const char * const insert_entry_sql = "INSERT INTO entries (stamp, data) VALUES (?, ?);";
     sqlite3_prepare_v2(db, insert_entry_sql, -1, &insert_stmt, 0);
 
-    if (not is_fuzzy) {
-        if (not is_caseless) {
-            query_method = &literal_query;
-        } else {
-            query_method = &literal_caseless_query;
-        }
+    // Prepare queries
+    char filtered_query[256] = "\0";
+    char empty_query[256]    = "\0";
+
+    if (not is_grouped) {
+        strcat(filtered_query, SELECT);
+        strcat(empty_query,    SELECT);
     } else {
-        if (not is_caseless) {
-            query_method = &fuzzy_query;
-        } else {
-            query_method = &fuzzy_caseless_query;
-        }
+        strcat(filtered_query, GROUP_SELECT);
+        strcat(empty_query,    GROUP_SELECT);
     }
-    sqlite3_prepare_v2(db, *query_method, -1, &      query_stmt, 0);
-    sqlite3_prepare_v2(db,   empty_query, -1, &empty_query_stmt, 0);
+
+    char * sql_mid[2][2] = {
+        {
+            "WHERE data GLOB CONCAT('*', ?, '*') ",
+            "WHERE data LIKE CONCAT('%', ?, '%') ",
+        },
+        {
+            "WHERE BRAINDAMAGED_FUZZY_SEARCH(data, ?) ",
+            "WHERE BRAINDAMAGED_FUZZY_SEARCH(LOWER(data), LOWER(?)) ",
+        },
+    };
+    strcat(filtered_query, sql_mid[is_fuzzy][is_caseless]);
+
+    if (is_grouped) {
+        strcat(filtered_query, "GROUP BY data ");
+        strcat(empty_query,    "GROUP BY data ");
+    }
+
+    strcat(filtered_query, ORDERING);
+    strcat(empty_query,    ORDERING);
+    strcat(filtered_query, PAGING);
+    strcat(empty_query,    PAGING);
+    strcat(filtered_query, ";");
+    strcat(empty_query,    ";");
+
+    sqlite3_prepare_v2(db, filtered_query, -1, &      query_stmt, 0);
+    sqlite3_prepare_v2(db,    empty_query, -1, &empty_query_stmt, 0);
 
     return 0;
 }
@@ -114,7 +139,7 @@ entry_t get_entry(void) {
     };
 }
 
-void braindamaged_fuzzy_search(sqlite3_context *context, [[maybe_unused]] int argc, sqlite3_value **argv) {
+void braindamaged_fuzzy_search(sqlite3_context * context, [[maybe_unused]] int argc, sqlite3_value * * argv) {
     const char * const db_text    = (const char *)sqlite3_value_text(argv[0]);
     const char * const user_query = (const char *)sqlite3_value_text(argv[1]);
 

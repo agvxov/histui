@@ -1,6 +1,6 @@
 %token HELP VERSION EXECUTE
 %token TUI ENABLE
-%token FUZZY CASELESS
+%token FUZZY CASELESS GROUP
 %{
     #include <stdlib.h>
     #include "cli.h"
@@ -24,6 +24,7 @@ tui_args: %empty
     | EXECUTE  tui_args { do_execute  = true; }
     | FUZZY    tui_args { is_fuzzy    = true; }
     | CASELESS tui_args { is_caseless = true; }
+    | GROUP    tui_args { is_grouped  = true; }
     ;
 
 %%

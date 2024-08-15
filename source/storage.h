@@ -6,6 +6,7 @@
 
 extern bool is_fuzzy;
 extern bool is_caseless;
+extern bool is_grouped;
 
 extern int init_storage(void);
 extern int deinit_storage(void);

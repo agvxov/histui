@@ -98,6 +98,9 @@ void parse_arguments(const int argc, const char * const * const argv) {
         } else
         if (!strcmp(argv[i], "--caseless")) {
             tokens[token_empty_head++] = CASELESS;
+        } else
+        if (!strcmp(argv[i], "--group")) {
+            tokens[token_empty_head++] = GROUP;
         } else {
             tokens[token_empty_head++] = YYUNDEF;
         }
