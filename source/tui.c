@@ -78,7 +78,7 @@ int init_tui(void) {
      * Im seriously questioning why readline is still the """default""" library in the wild
      *  and whether i should participate.
      */
-    int redisplay_nop(void) { return; }
+    void redisplay_nop(void) { return; }
     rl_redisplay_function   = redisplay_nop;
     /* We must specify an input handler or readline chimps out,
      *  but we dont want the line to be actually submittable,
@@ -86,7 +86,7 @@ int init_tui(void) {
      *   has typedso far)
      *  so we also override enter to do nothing.
      */
-    void no_op_handler([[maybe_unused]] char *line) { ; }
+    void no_op_handler([[maybe_unused]] char *line) { return; }
     int  no_op_bind([[maybe_unused]] int i, [[maybe_unused]] int h) { return 0; }
 	rl_callback_handler_install("", no_op_handler);
     rl_bind_key('\n', no_op_bind);
