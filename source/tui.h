@@ -19,6 +19,7 @@ extern int deinit_tui(void);
 extern void tui_append_back(const entry_t entry);
 
 extern void tui_refresh(void);
+extern void tui_rearm(void);
 
 extern void tui_take_input(void);
 
