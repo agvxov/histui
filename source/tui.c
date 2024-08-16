@@ -177,7 +177,8 @@ void tui_take_input(void) {
         case KEY_UP:
         case CTRL('p'):
         case CTRL('k'): {
-            if (selection_relative == last_entry_line_index-1) {
+            if (selection_relative == last_entry_line_index-1
+            &&  entry_lines != last_entry_line_index) {
                 break;
             }
             if (selection_relative != entry_lines-1) {
