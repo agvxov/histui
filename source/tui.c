@@ -39,7 +39,7 @@ static int input_available = false;
 static int input;
 
 //
-static void refresh_input(void);
+static inline void update_input(void);
 static void full_redraw(void);
 
 static bool do_fullredraw = true;
@@ -73,7 +73,13 @@ int init_tui(void) {
     int return_input_available(void) { return input_available; }
 	rl_getc_function        = getc_function;
 	rl_input_available_hook = return_input_available;
-	rl_redisplay_function   = refresh_input;
+    /* Due to this bug: https://mail.gnu.org/archive/html/bug-readline/2013-09/msg00021.html ;
+     *  we cannot null this function.
+     * Im seriously questioning why readline is still the """default""" library in the wild
+     *  and whether i should participate.
+     */
+    int redisplay_nop(void) { return; }
+    rl_redisplay_function   = redisplay_nop;
     /* We must specify an input handler or readline chimps out,
      *  but we dont want the line to be actually submittable,
      *  (search is continous and that would delete what the user
@@ -131,19 +137,25 @@ void full_redraw(void) {
     box(main_window, 0, 0);
 
     waddstr(version_window, version_string);
-    wrefresh(version_window);
 
-    refresh_input();
+    update_input();
+
+    wnoutrefresh(version_window);
+    doupdate();
 }
 
-static
-void refresh_input(void) {
+void tui_rearm() {
+    entry_line_index = 0;
+}
+
+static inline
+void update_input() {
 	wmove(input_window, 0, 0);
 	wclrtoeol(input_window);
 	waddstr(input_window, "$ ");
 	waddstr(input_window, rl_line_buffer);
     waddch(input_window, ACS_BLOCK);
-	wrefresh(input_window);
+	wnoutrefresh(input_window);
 }
 
 void tui_refresh(void) {
@@ -160,11 +172,11 @@ void tui_refresh(void) {
     }
     entry_line_index = 0;
 
-    refresh_input();
+    update_input();
 
-    wrefresh(entry_window);
-    wmove(entry_window, 0, 0);
-    wrefresh(main_window);
+    wnoutrefresh(entry_window);
+    wnoutrefresh(main_window);
+    doupdate();
 }
 
 

@@ -1,3 +1,2 @@
-+ scroll flashes
-+ technical dept in tui.cpp -
 + resizing
++ unicode support in the tui

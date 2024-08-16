@@ -86,8 +86,8 @@ signed main(const int argc, const char * const * const argv) {
     pthread_t query_thread;
     pthread_create(&query_thread, NULL, async_input, NULL);
     while (do_run) {
-      loop_start:
         entry_t entry;
+      loop_start:
         if (do_redisplay) {
             do_redisplay = false;
             if (is_input_changed) {
@@ -97,7 +97,7 @@ signed main(const int argc, const char * const * const argv) {
                 requery();
             }
             while (entry = get_entry(), entry.command != NULL) {
-                if (is_input_changed) { goto loop_start; }
+                if (is_input_changed) { tui_rearm(); goto loop_start; }
                 tui_append_back(entry);
             }
             tui_refresh();
