@@ -42,5 +42,16 @@ clean:
 test:
 	${WRAP} ./${OUTPUT}
 
+docs:
+	kramdown-man documentation/histui.1.md -o ${OBJECT.d}/histui.1
+
 install:
+	-cp ${OBJECT.d}/histui.1 /usr/local/share/man/man1/
 	cp ${OUTPUT} ~/bin/
+
+help:
+	@echo Available targets:
+	@echo "  histui"
+	@echo "  docs"
+	@echo "  install"
+	@echo "  clean"
