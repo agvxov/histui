@@ -46,11 +46,11 @@ static bool do_fullredraw = true;
 
 int init_tui(void) {
     // Ncurses
-	initscr();
+    initscr();
     nonl();
     cbreak();
-	noecho();
-	curs_set(0);
+    noecho();
+    curs_set(0);
     keypad(stdscr, TRUE);
 
     entry_lines = LINES-3;
@@ -61,18 +61,18 @@ int init_tui(void) {
     version_window = subwin(main_window,           1, strlen(version_string), 0, 5);
     refresh();
 
-	// Readline
-	rl_bind_key('\t', rl_insert);
-	rl_catch_signals        = 0;
-	rl_catch_sigwinch       = 0;
-	rl_change_environment   = 0;
-	rl_prep_term_function   = NULL;
-	rl_deprep_term_function = NULL;
+    // Readline
+    rl_bind_key('\t', rl_insert);
+    rl_catch_signals        = 0;
+    rl_catch_sigwinch       = 0;
+    rl_change_environment   = 0;
+    rl_prep_term_function   = NULL;
+    rl_deprep_term_function = NULL;
 
     int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
     int return_input_available(void) { return input_available; }
-	rl_getc_function        = getc_function;
-	rl_input_available_hook = return_input_available;
+    rl_getc_function        = getc_function;
+    rl_input_available_hook = return_input_available;
     /* Due to this bug: https://mail.gnu.org/archive/html/bug-readline/2013-09/msg00021.html ;
      *  we cannot null this function.
      * Im seriously questioning why readline is still the """default""" library in the wild
