@@ -9,13 +9,15 @@ Do note that it does not replace the original history management.
 **histui** [ *GLOBAL-OPTIONS* ] *VERB* [ *OPTIONS*+ ]
 
 --version
-: print version and quit
+: print version and quit.
 
 --help
-: print help and quit
+: print help and quit.
 
 ### enable
 Dump a Bash script to stdout which is meant to be sourced from a bashrc.
+
+It rebinds the default history keys, such as `UP` and `CTRL + r`.
 
 ### tui
 Start the interactive interface.
@@ -30,7 +32,8 @@ Fuzzy searching should not be noticeably slower than regular searches,
 but significantly, more convenient.
 In contrast,
 the default behaviour is to emulate the built in history search of Readline.
-*NOTE:* In the current implementation this
+*NOTE:* In the current implementation this means that whitespace separated
+substrings may appear in any order.
 
 --caseless
 : ignore letter case in searches.
@@ -38,27 +41,34 @@ the default behaviour is to emulate the built in history search of Readline.
 --group
 : group equal commands together, in effect only showing the most recent invocation.
 
-## Controls
+## CONTROLS
 
-`UP`
-`DOWN`
-`CTRL + j`
-`CTRL + K`
-: scroll the entry cursor by one
+UP
+DOWN
+CTRL + j
+CTRL + K
+: scroll the entry cursor by one.
 
-`PAGEUP`
-`PAGEDOWN`
-`CTRL + u`
-`CTRL + d`
-: scroll the entry cursor by half a screen
+PAGEUP
+PAGEDOWN
+CTRL + u
+CTRL + d
+: scroll the entry cursor by half a screen.
 
-`ENTER`
-: select the entry under the cursor, making histui terminate and returning the entry
+ENTER
+: select the entry under the cursor, making histui terminate and returning the entry.
 
-`CTRL + q`
-: like ENTER, but not affected by --execute
+CTRL + q
+: like ENTER, but not affected by --execute.
 
-`DEFAULT`
-: edit the query line
+DEFAULT
+: edit the query line.
+
+## VARIABLES
+
+### HISTUICMD
+The script output by enable will use this variable to invoke histui.
+For example, if you define it in your bashrc before histui is enable as: `histui --caseless`;
+`CRTL + r` will always be case insensitive.
 
 [//]: # (@BAKE kramdown-man $@ @STOP)
