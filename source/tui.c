@@ -150,12 +150,25 @@ void tui_rearm() {
 
 static inline
 void update_input() {
-	wmove(input_window, 0, 0);
-	wclrtoeol(input_window);
-	waddstr(input_window, "$ ");
-	waddstr(input_window, rl_line_buffer);
-    waddch(input_window, ACS_BLOCK);
-	wnoutrefresh(input_window);
+    const char * const prompt = "$ ";
+
+    wmove(input_window, 0, 0);
+    waddstr(input_window, prompt);
+
+    waddnstr(input_window, rl_line_buffer, rl_point);
+    wattron(input_window, A_REVERSE);
+    if (rl_point == rl_end) {
+        waddch(input_window, ' ');
+        wattroff(input_window, A_REVERSE);
+    } else {
+        waddch(input_window, rl_line_buffer[rl_point]);
+        wattroff(input_window, A_REVERSE);
+        waddnstr(input_window, rl_line_buffer + rl_point + 1, rl_end - rl_point);
+    }
+
+    wclrtoeol(input_window);
+
+    wnoutrefresh(input_window);
 }
 
 void tui_refresh(void) {
@@ -236,6 +249,18 @@ void tui_take_input(void) {
         case CTRL('q'): {
             do_execute = false;
             do_run = false;
+        } break;
+        case KEY_LEFT: {
+            if (rl_point != 0) {
+                --rl_point;
+                is_input_changed = true;
+            }
+        } break;
+        case KEY_RIGHT: {
+            if (rl_point != rl_end) {
+                ++rl_point;
+                is_input_changed = true;
+            }
         } break;
         case '\r': {
             do_run = false;
