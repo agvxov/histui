@@ -185,6 +185,13 @@ void update_input() {
 }
 
 void tui_refresh(void) {
+    // XXX: this is dirty
+    if (selection_relative > last_entry_line_index-1) {
+        selection_relative = last_entry_line_index-2;
+        do_redisplay = true;
+        return;
+    }
+
     if (do_fullredraw) {
         do_fullredraw = false;
         full_redraw();
