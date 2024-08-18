@@ -6,7 +6,11 @@
 
 #include "argument_yy.tab.h"
 
-int * arg_tokens;
+bool is_expecting_argument = false;
+
+static int yy_argc;
+static const char * const * yy_argv;
+static int yy_i;
 
 void version() {
     puts(
@@ -41,7 +45,7 @@ void enable(void) {
         "    if ! [ -v HISTUICMD ]; then\n"
         "        HISTUICMD=\"histui tui\"\n"
         "    fi\n"
-        "    HISTFILE=$HISTFILE ${HISTUICMD} 3> \"${COMMANDFILE}\"\n"
+        "    HISTFILE=$HISTFILE ${HISTUICMD} --input \"${READLINE_LINE}\" 3> \"${COMMANDFILE}\"\n"
         "    READLINE_LINE=$(cat \"${COMMANDFILE}\")\n"
         "    READLINE_POINT=${#READLINE_LINE}\n"
         "}\n"
@@ -51,9 +55,54 @@ void enable(void) {
     );
 }
 
+/* Lexical analysis of a poor man.
+ * Using Flex would be problematic because our input
+ *  is not stored in an actual buffer (not in a defined
+ *  behaviour way anyways).
+ */
+#define YIELD(v) ++yy_i; return v
 int argument_yy_lex(void) {
-    static int i = 0;
-    return arg_tokens[i++];
+    for (; yy_i < yy_argc;) {
+        if (is_expecting_argument) {
+            is_expecting_argument = false;
+            argument_yy_lval.strval = yy_argv[yy_i];
+            YIELD(ARGUMENT);
+        }
+
+        if (!strcmp(yy_argv[yy_i], "--help")
+        ||  !strcmp(yy_argv[yy_i], "-h")) {
+            YIELD(HELP);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--version")
+        ||  !strcmp(yy_argv[yy_i], "-v")) {
+            YIELD(VERSION);
+        } else
+        if (!strcmp(yy_argv[yy_i], "tui")) {
+            YIELD(TUI);
+        } else
+        if (!strcmp(yy_argv[yy_i], "enable")) {
+            YIELD(ENABLE);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--execute")) {
+            YIELD(EXECUTE);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--fuzzy")) {
+            YIELD(FUZZY);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--caseless")) {
+            YIELD(CASELESS);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--group")) {
+            YIELD(GROUP);
+        } else
+        if (!strcmp(yy_argv[yy_i], "--input")) {
+            YIELD(INPUT);
+        } else {
+            YIELD(YYUNDEF);
+        }
+    }
+
+    YIELD(YYEOF);
 }
 
 void argument_yy_error([[ maybe_unused ]] const char * const s) {
@@ -63,51 +112,17 @@ void argument_yy_error([[ maybe_unused ]] const char * const s) {
 }
 
 void parse_arguments(const int argc, const char * const * const argv) {
+  #if 0
+    argument_yy_debug = 1;
+  #endif
+
     if (argc < 2) {
         usage();
         exit(1);
     }
 
-    /* Lexical analysis of a poor man.
-     * Using Flex would be problematic because our input
-     *  is not stored in an actual buffer (not in a defined
-     *  behaviour way anyways).
-     */
-    int tokens[argc];
-    int token_empty_head = 0;
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "--help")
-        ||  !strcmp(argv[i], "-h")) {
-            tokens[token_empty_head++] = HELP;
-        } else
-        if (!strcmp(argv[i], "--version")
-        ||  !strcmp(argv[i], "-v")) {
-            tokens[token_empty_head++] = VERSION;
-        } else
-        if (!strcmp(argv[i], "tui")) {
-            tokens[token_empty_head++] = TUI;
-        } else
-        if (!strcmp(argv[i], "enable")) {
-            tokens[token_empty_head++] = ENABLE;
-        } else
-        if (!strcmp(argv[i], "--execute")) {
-            tokens[token_empty_head++] = EXECUTE;
-        } else
-        if (!strcmp(argv[i], "--fuzzy")) {
-            tokens[token_empty_head++] = FUZZY;
-        } else
-        if (!strcmp(argv[i], "--caseless")) {
-            tokens[token_empty_head++] = CASELESS;
-        } else
-        if (!strcmp(argv[i], "--group")) {
-            tokens[token_empty_head++] = GROUP;
-        } else {
-            tokens[token_empty_head++] = YYUNDEF;
-        }
-    }
-    tokens[token_empty_head++] = YYEOF;
-
-    arg_tokens = tokens;
+    yy_argc = argc - 1;
+    yy_argv = argv + 1;
 
     argument_yy_parse();
 }
