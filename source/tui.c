@@ -8,6 +8,17 @@
 
 extern bool do_execute;
 
+/* I fucking hate readline.
+ * Apparently the only way to set an initial value is using a hook.
+ * What makes this extra painful is that readline cannot be explicitly
+ *  initialized nor is it documented clearly that shit will segfault
+ *  otherwise.
+ * If I ever find out what is a sensible alternative im ditching it forever.
+ */
+const char * initial_text;
+
+const char * get_input_line(void) { return rl_line_buffer; }
+
 /* "Cursor" position; the entry selected by the user
  */
 size_t selection_relative = 0;
@@ -71,8 +82,10 @@ int init_tui(void) {
 
     int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
     int return_input_available(void) { return input_available; }
+    int initializer(void) { rl_insert_text(initial_text); return 0; }
     rl_getc_function        = getc_function;
     rl_input_available_hook = return_input_available;
+    rl_startup_hook         = initializer;
     /* Due to this bug: https://mail.gnu.org/archive/html/bug-readline/2013-09/msg00021.html ;
      *  we cannot null this function.
      * Im seriously questioning why readline is still the """default""" library in the wild

@@ -92,7 +92,7 @@ signed main(const int argc, const char * const * const argv) {
             do_redisplay = false;
             if (is_input_changed) {
                 is_input_changed = false;
-                query(rl_line_buffer, entry_lines, selection_offset);
+                query(get_input_line(), entry_lines, selection_offset);
             } else {
                 requery();
             }
@@ -106,7 +106,7 @@ signed main(const int argc, const char * const * const argv) {
     }
     pthread_join(query_thread, NULL);
 
-    query(rl_line_buffer, 1, selection_offset + selection_relative);
+    query(get_input_line(), 1, selection_offset + selection_relative);
     export_result(get_entry().command);
 
     deinit();
