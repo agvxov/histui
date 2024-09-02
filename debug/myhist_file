@@ -1,0 +1,107 @@
+# NOTE: this file is for testing histui; all commands were GPT generated
+# @BAKE head $@
+# Use this from cbash: HISTFILE=myhist_file; export HISTFILE; source <(histui enable)
+cd /var/www
+ls -la
+cd /home/user/projects
+mkdir new_project
+cd new_project
+git init
+touch README.md
+nano README.md
+git add README.md
+git commit -m "Initial commit"
+cd /etc
+sudo nano hosts
+cat /etc/passwd
+cp /home/user/projects/old_project/config.yml /home/user/projects/new_project/
+mv old_project.zip /home/user/archives/
+unzip archive.zip
+rm -rf /tmp/old_files
+top
+df -h
+du -sh /home/user/projects/
+ps aux | grep apache
+sudo systemctl restart apache2
+ssh user@remote_server
+scp file.txt user@remote_server:/home/user/
+rsync -avz /home/user/projects/ remote_server:/home/user/backup/
+find /home/user/ -name "*.log"
+grep "ERROR" /var/log/syslog
+tail -f /var/log/apache2/error.log
+chmod +x script.sh
+./script.sh
+sudo rc-service tor restart
+sudo apt update
+sudo apt upgrade -y
+docker ps
+docker-compose up -d
+kubectl get pods
+curl -I https://www.example.com
+wget https://www.example.com/file.zip
+ping google.com
+traceroute example.com
+whoami
+uname -a
+echo $PATH
+env | grep PATH
+export VAR=value
+history
+cd /usr/local/bin
+sudo ln -s /home/user/scripts/myscript.sh /usr/local/bin/myscript
+chmod 755 /usr/local/bin/myscript
+which python3
+python3 -m venv env
+source env/bin/activate
+pip install requests
+pip freeze > requirements.txt
+deactivate
+tar -czvf archive.tar.gz /home/user/projects/
+tar -xzvf archive.tar.gz -C /home/user/restore/
+alias ll='ls -la'
+unalias ll
+diff file1.txt file2.txt
+patch < fix.patch
+crontab -e
+systemctl status nginx
+sudo systemctl stop nginx
+sudo systemctl start nginx
+sudo service mysql restart
+mysql -u root -p
+mysqldump -u root -p database_name > backup.sql
+sudo visudo
+ifconfig -a
+ip addr show
+netstat -tuln
+lsof -i :80
+nslookup example.com
+dig example.com
+hostnamectl
+journalctl -xe
+dmesg | tail
+free -m
+uptime
+who
+last
+chmod 644 /etc/hosts
+chown user:user /var/www/html -R
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+ssh-add ~/.ssh/id_rsa
+xargs -n 1 echo < file.txt
+sort file.txt | uniq
+sed -i 's/foo/bar/g' file.txt
+awk '{print $1}' file.txt
+cut -d':' -f1 /etc/passwd
+ln -s /etc/nginx/sites-available/site /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/site
+echo "alias gs='git status'" >> ~/.bashrc
+source ~/.bashrc
+htop
+screen -S my_session
+tmux new -s my_tmux_session
+kill -9 12345
+pkill -f my_process
+ man ls
+HISTFILE=myhist_file; export HISTFILE; source <(histui enable)
+cls
+clear
