@@ -13,7 +13,7 @@ extern bool do_execute;
  * What makes this extra painful is that readline cannot be explicitly
  *  initialized nor is it documented clearly that shit will segfault
  *  otherwise.
- * If I ever find out what is a sensible alternative im ditching it forever.
+ * XXX: If I ever find out what is a sensible alternative im ditching it forever.
  */
 const char * initial_text;
 
@@ -96,7 +96,7 @@ int init_tui(void) {
     /* We must specify an input handler or readline chimps out,
      *  but we dont want the line to be actually submittable,
      *  (search is continous and that would delete what the user
-     *   has typedso far)
+     *   has typed so far)
      *  so we also override enter to do nothing.
      */
     void no_op_handler([[maybe_unused]] char *line) { return; }
@@ -266,6 +266,7 @@ void tui_take_input(void) {
                 is_input_changed = true;
             }
         } break;
+        case '\t':
         case CTRL('q'): {
             do_execute = false;
             do_run = false;
