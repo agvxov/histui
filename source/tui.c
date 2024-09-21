@@ -52,6 +52,9 @@ static int input;
 //
 static inline void update_input(void);
 static void full_redraw(void);
+static void resize(void);
+static inline void init_windows();
+static inline void deinit_windows();
 
 static bool do_fullredraw = true;
 
@@ -64,13 +67,7 @@ int init_tui(void) {
     curs_set(0);
     keypad(stdscr, TRUE);
 
-    entry_lines = LINES-3;
-
-	main_window    = newwin(LINES-1, COLS,       0, 0);
-    input_window   = newwin(      1, COLS, LINES-1, 0);
-    entry_window   = subwin(main_window, entry_lines,                 COLS-2, 1, 1);
-    version_window = subwin(main_window,           1, strlen(version_string), 0, 5);
-    refresh();
+    init_windows();
 
     // Readline
     rl_bind_key('\t', rl_insert);
@@ -108,6 +105,7 @@ int init_tui(void) {
 }
 
 int deinit_tui(void) {
+    deinit_windows();
 	endwin();
     return 0;
 }
@@ -145,6 +143,25 @@ void tui_append_back(const entry_t entry) {
     ++entry_line_index;
 }
 
+static inline
+void init_windows() {
+    entry_lines = LINES-3;
+
+	main_window    = newwin(LINES-1, COLS,       0, 0);
+    input_window   = newwin(      1, COLS, LINES-1, 0);
+    entry_window   = subwin(main_window, entry_lines,                 COLS-2, 1, 1);
+    version_window = subwin(main_window,           1, strlen(version_string), 0, 5);
+    refresh();
+}
+
+static inline
+void deinit_windows() {
+    delwin(entry_window);
+    delwin(version_window);
+    delwin(main_window);
+    delwin(input_window);
+}
+
 static
 void full_redraw(void) {
     box(main_window, 0, 0);
@@ -157,8 +174,11 @@ void full_redraw(void) {
     doupdate();
 }
 
-void tui_rearm() {
-    entry_line_index = 0;
+static
+void resize(void) {
+    deinit_windows();
+    init_windows();
+    full_redraw();
 }
 
 static inline
@@ -182,6 +202,10 @@ void update_input() {
     wclrtoeol(input_window);
 
     wnoutrefresh(input_window);
+}
+
+void tui_rearm() {
+    entry_line_index = 0;
 }
 
 void tui_refresh(void) {
@@ -212,6 +236,7 @@ void tui_refresh(void) {
     doupdate();
 }
 
+#include <stdlib.h>
 
 void tui_take_input(void) {
     extern bool do_run;
@@ -285,6 +310,10 @@ void tui_take_input(void) {
         } break;
         case '\r': {
             do_run = false;
+        } break;
+        case KEY_RESIZE: {
+            //flushinp();
+            resize();
         } break;
         case ERR: break;
         default: {
