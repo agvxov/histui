@@ -291,8 +291,7 @@ void tui_take_input(void) {
                 is_input_changed = true;
             }
         } break;
-        case '\t':
-        case CTRL('q'): {
+        case '\r': {
             do_execute = false;
             do_run = false;
         } break;
