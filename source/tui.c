@@ -6,8 +6,6 @@
 
 #include "caret_notater.h"
 
-extern bool do_execute;
-
 /* I fucking hate readline.
  * Apparently the only way to set an initial value is using a hook.
  * What makes this extra painful is that readline cannot be explicitly
@@ -240,6 +238,8 @@ void tui_refresh(void) {
 
 void tui_take_input(void) {
     extern bool do_run;
+    extern bool do_execute;
+    extern bool do_select;
     const size_t paging_size = entry_lines / 2;
 
 	input = wgetch(stdscr);
@@ -302,7 +302,13 @@ void tui_take_input(void) {
         // quit and insert current selection
         case '\t': {
             do_execute = false;
-            do_run = false;
+            do_run     = false;
+        } break;
+        // quit and preserve input
+        case ESC: {
+            do_select  = false;
+            do_execute = false;
+            do_run     = false;
         } break;
         // edit cursor left
         case KEY_LEFT: {

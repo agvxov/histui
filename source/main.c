@@ -7,8 +7,9 @@
 #include "storage.h"
 #include "tui.h"
 
-bool do_run = true;
-bool do_execute = false;
+bool do_run     = true;     // do run program
+bool do_execute = false;    // do execute resulting command
+bool do_select  = true;     // do overwrite input with selection
 
 void init(void);
 void deinit(void);
@@ -106,8 +107,14 @@ signed main(const int argc, const char * const * const argv) {
     }
     pthread_join(query_thread, NULL);
 
-    query(get_input_line(), 1, selection_offset + selection_relative);
-    export_result(get_entry().command);
+    const char * command;
+    if (do_select) {
+      query(get_input_line(), 1, selection_offset + selection_relative);
+      command = get_entry().command;
+    } else {
+      command = get_input_line();
+    }
+    export_result(command);
 
     deinit();
 
