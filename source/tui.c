@@ -244,6 +244,7 @@ void tui_take_input(void) {
 
 	input = wgetch(stdscr);
     switch (input) {
+        // select previous history entry
         case KEY_UP:
         case CTRL('p'):
         case CTRL('k'): {
@@ -259,6 +260,7 @@ void tui_take_input(void) {
                 is_input_changed = true;
             }
         } break;
+        // select next history entry
         case KEY_DOWN:
         case CTRL('n'):
         case CTRL('j'): {
@@ -272,11 +274,13 @@ void tui_take_input(void) {
                 }
             }
         } break;
+        // jump half a page up
         case KEY_PPAGE:
         case CTRL('u'): {
             selection_offset += paging_size;
             is_input_changed = true;
         } break;
+        // jump half a page down
         case KEY_NPAGE:
         case CTRL('d'): {
             if (selection_offset == 0) {
@@ -291,30 +295,37 @@ void tui_take_input(void) {
                 is_input_changed = true;
             }
         } break;
+        // quit and run current selection
         case '\r': {
+            do_run = false;
+        } break;
+        // quit and insert current selection
+        case '\t': {
             do_execute = false;
             do_run = false;
         } break;
+        // edit cursor left
         case KEY_LEFT: {
             if (rl_point != 0) {
                 --rl_point;
                 is_input_changed = true;
             }
         } break;
+        // edit cursor right
         case KEY_RIGHT: {
             if (rl_point != rl_end) {
                 ++rl_point;
                 is_input_changed = true;
             }
         } break;
-        case '\r': {
-            do_run = false;
-        } break;
+        // resize
         case KEY_RESIZE: {
             //flushinp();
             resize();
         } break;
+        // ignore errors
         case ERR: break;
+        // insert regular char
         default: {
             input_available = true;
             rl_callback_read_char();
