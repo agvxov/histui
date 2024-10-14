@@ -149,12 +149,15 @@ void braindamaged_fuzzy_search(sqlite3_context * context, [[maybe_unused]] int a
     char * save;
     char * s = strtok_r(mutable_user_query, delim, &save);
 
-    do{
+    if (!s) { goto end; }
+
+    do {
         if (!strstr(db_text, s)) {
             sqlite3_result_int(context, 0);
             return;
         }
-    }while((s = strtok_r(NULL, delim, &save), s));
+    } while((s = strtok_r(NULL, delim, &save), s));
 
+  end:
     sqlite3_result_int(context, 1);
 }
