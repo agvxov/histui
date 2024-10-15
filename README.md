@@ -2,7 +2,7 @@
 > TUI for your Bash history
 
 ## Demo
-![placeholder](placeholder)
+![demo](documentation/histui_demo.gif)
 
 Histui that simply provides a fast TUI for your history.
 It does not provide favourites ([alternative solution](placeholder)),
