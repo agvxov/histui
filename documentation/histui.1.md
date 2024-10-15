@@ -58,7 +58,7 @@ CTRL + d
 ENTER
 : select the entry under the cursor, making histui terminate and returning the entry.
 
-CTRL + q
+TAB
 : like ENTER, but not affected by --execute.
 
 DEFAULT
@@ -70,5 +70,9 @@ DEFAULT
 The script output by enable will use this variable to invoke histui.
 For example, if you define it in your bashrc before histui is enable as: `histui --caseless`;
 `CRTL + r` will always be case insensitive.
+
+### HISTFILE
+As defined in the Bash manual.
+This variable must be exported so histui can figure out where you keep your history file.
 
 [//]: # (@BAKE kramdown-man $@ @STOP)
