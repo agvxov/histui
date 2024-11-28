@@ -110,7 +110,8 @@ signed main(const int argc, const char * const * const argv) {
     const char * command;
     if (do_select) {
       query(get_input_line(), 1, selection_offset + selection_relative);
-      command = get_entry().command ? get_entry().command : "";
+      command = get_entry().command;
+      command = command ? command : "";
     } else {
       command = get_input_line();
     }
