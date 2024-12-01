@@ -7,3 +7,4 @@ this will have to wait until gcc gets fixed
     * display the shell in the tui
 + configurable entry format strings?
 + inline syntax highlighting
++ "normal" history order behaviour by reading the history builtin
