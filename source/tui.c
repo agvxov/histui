@@ -47,6 +47,13 @@ static WINDOW * version_window;
 static int input_available = false;
 static int input;
 
+int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
+int return_input_available(void) { return input_available; }
+int initializer(void) { rl_insert_text(initial_text); return 0; }
+void redisplay_nop(void) { return; }
+void no_op_handler([[maybe_unused]] char *line) { return; }
+int  no_op_bind([[maybe_unused]] int i, [[maybe_unused]] int h) { return 0; }
+
 //
 static inline void update_input(void);
 static void full_redraw(void);
@@ -75,9 +82,6 @@ int init_tui(void) {
     rl_prep_term_function   = NULL;
     rl_deprep_term_function = NULL;
 
-    int getc_function([[maybe_unused]] FILE* ignore) { input_available = false; return (int)(input); }
-    int return_input_available(void) { return input_available; }
-    int initializer(void) { rl_insert_text(initial_text); return 0; }
     rl_getc_function        = getc_function;
     rl_input_available_hook = return_input_available;
     rl_startup_hook         = initializer;
@@ -86,7 +90,6 @@ int init_tui(void) {
      * Im seriously questioning why readline is still the """default""" library in the wild
      *  and whether i should participate.
      */
-    void redisplay_nop(void) { return; }
     rl_redisplay_function   = redisplay_nop;
     /* We must specify an input handler or readline chimps out,
      *  but we dont want the line to be actually submittable,
@@ -94,8 +97,6 @@ int init_tui(void) {
      *   has typed so far)
      *  so we also override enter to do nothing.
      */
-    void no_op_handler([[maybe_unused]] char *line) { return; }
-    int  no_op_bind([[maybe_unused]] int i, [[maybe_unused]] int h) { return 0; }
 	rl_callback_handler_install("", no_op_handler);
     rl_bind_key('\n', no_op_bind);
 

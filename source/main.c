@@ -69,6 +69,14 @@ void export_result(const char * const result) {
     }
 }
 
+void * async_input([[maybe_unused]] void * arg) {
+    while (do_run) {
+        tui_take_input();
+        if (is_input_changed) { cancel_all_queries(); }
+    }
+    return NULL;
+}
+
 signed main(const int argc, const char * const * const argv) {
     // NOTE: never returns on error
     parse_arguments(argc, argv);
@@ -76,14 +84,6 @@ signed main(const int argc, const char * const * const argv) {
     init();
 
     tui_refresh();
-
-    void * async_input([[maybe_unused]] void * arg) {
-        while (do_run) {
-            tui_take_input();
-            if (is_input_changed) { cancel_all_queries(); }
-        }
-        return NULL;
-    }
     pthread_t query_thread;
     pthread_create(&query_thread, NULL, async_input, NULL);
     while (do_run) {
