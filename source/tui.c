@@ -277,6 +277,9 @@ void tui_take_input(void) {
         // jump half a page up
         case KEY_PPAGE:
         case CTRL('u'): {
+            if (last_entry_line_index < entry_lines) {
+                break;
+            }
             selection_offset += paging_size;
             is_input_changed = true;
         } break;
