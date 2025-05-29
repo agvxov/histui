@@ -1,6 +1,7 @@
 # NOTE: this file is for testing histui; all commands were GPT generated
 # @BAKE head $@
 # Use this from cbash: HISTFILE=myhist_file; export HISTFILE; source <(histui enable)
+сабака
 cd /var/www
 ls -la
 cd /home/user/projects
@@ -34,6 +35,7 @@ chmod +x script.sh
 sudo rc-service tor restart
 sudo apt update
 sudo apt upgrade -y
+уницоде текст
 docker ps
 docker-compose up -d
 kubectl get pods
@@ -62,6 +64,7 @@ alias ll='ls -la'
 unalias ll
 diff file1.txt file2.txt
 patch < fix.patch
+моааааар уницоде текст
 crontab -e
 systemctl status nginx
 sudo systemctl stop nginx
@@ -81,6 +84,7 @@ journalctl -xe
 dmesg | tail
 free -m
 uptime
+# űűűű őúőü úőüűű
 who
 last
 chmod 644 /etc/hosts
