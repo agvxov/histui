@@ -12,6 +12,7 @@
  *  initialized nor is it documented clearly that shit will segfault
  *  otherwise.
  * XXX: If I ever find out what is a sensible alternative im ditching it forever.
+ * XXX: I was told the BSD one is much better
  */
 const char * initial_text;
 
