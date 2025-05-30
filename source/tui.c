@@ -110,11 +110,18 @@ int deinit_tui(void) {
 }
 
 void tui_append_back(const entry_t entry) {
+    // render time
     const int TIME_SIZE = 19 + 1;
     char time_buffer[TIME_SIZE];
     strftime(time_buffer, TIME_SIZE, "%Y-%m-%d %H:%M:%S", localtime((time_t*)&entry.timestamp));
+    // render caret notation
     char caret_notation_buffer[(strlen(entry.command)*2)+1];
     const size_t current_line_y = (entry_lines-1)-entry_line_index;
+    string_to_caret_notation(
+        entry.command,
+        strlen(entry.command),
+        caret_notation_buffer
+    );
 
     if (entry_line_index == selection_relative) {
         wattron(entry_window, A_REVERSE);
