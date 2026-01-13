@@ -9,11 +9,12 @@ SOURCE := main.c cli.c tui.c storage.c
 OBJECT := ${SOURCE}
 OBJECT := $(subst .c,.o,${OBJECT})
 
-GENSOURCE := argument_yy.tab.c bash_history.yy.c
+GENSOURCE := argument_yy.tab.c
 
 vpath %.o ${OBJECT.d}
 vpath %.c ${SOURCE.d}
 vpath %.l ${SOURCE.d}/bash/
+vpath %.l ${SOURCE.d}/fish/
 vpath %.y ${SOURCE.d}
 vpath %.yy.c ${OBJECT.d}
 vpath %.tab.c ${OBJECT.d}
@@ -35,6 +36,12 @@ else
 endif
 
 TARGET_SHELL ?= bash
+
+ifeq (${TARGET_SHELL}, bash)
+    GENSOURCE += bash_history.yy.c
+else ifeq (${TARGET_SHELL}, fish)
+    GENSOURCE += fish_history.yy.c
+endif
 
 CPPFLAGS += -DSHELL=${TARGET_SHELL} -Isource/${TARGET_SHELL}
 CPPFLAGS += -I${SOURCE.d} -I${OBJECT.d}

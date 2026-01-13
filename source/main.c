@@ -2,8 +2,8 @@
 #include <pthread.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include "shell.h"
 #include "cli.h"
-#include "bash_history.yy.h"
 #include "storage.h"
 #include "tui.h"
 
@@ -25,14 +25,14 @@ void init(void) {
         exit(1);
     }
 
-    bash_history_in = fopen(history_file_path, "r");
-    if (!bash_history_in) {
+    history_in = fopen(history_file_path, "r");
+    if (!history_in) {
         fputs("Failed to open history file.\n", stderr);
         deinit();
         exit(1);
     }
 
-    bash_history_lex();
+    history_lex();
 
     init_tui();
 }
