@@ -33,26 +33,11 @@ void usage(void) {
 }
 
 void enable(void) {
-    // XXX one day...
-    /*
-    puts(
-    # embed "histui_enable.sh.inc"
-    );
-    */
-    puts(
-        "function _histui_run() {\n"
-        "    COMMANDFILE=\"${XDG_CACHE_HOME}/histui_command.txt\"\n"
-        "    if ! [ -v HISTUICMD ]; then\n"
-        "        HISTUICMD=\"histui tui\"\n"
-        "    fi\n"
-        "    HISTFILE=$HISTFILE ${HISTUICMD} --input \"${READLINE_LINE}\" 3> \"${COMMANDFILE}\"\n"
-        "    READLINE_LINE=$(cat \"${COMMANDFILE}\")\n"
-        "    READLINE_POINT=${#READLINE_LINE}\n"
-        "}\n"
-        "\n"
-        "bind -x '\"\\e[A\": _histui_run'\n"
-        "bind -x '\"\\C-r\": _histui_run'\n"
-    );
+    const char enable_string[] = {
+        #embed "histui_enable.sh.inc"
+        , '\0'
+    };
+    puts(enable_string);
 }
 
 /* Lexical analysis of a poor man.
