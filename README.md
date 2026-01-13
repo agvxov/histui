@@ -17,6 +17,13 @@ Histui fulfills its UNIX-y purpose and fuck-all else.
 ## Documentation
 For usage details consult the [manual](documentation/histui.1.md).
 
+## Compatibility
+Histui currently supports Bash and Fish;
+and other shells could easily be added.
+As of now, a Histui binary supports a single shell:
+the one that was specified at compile time.
+This may change in the future.
+
 ## Installation
 After copying the project and cd-ing to it's root,
 ```
@@ -25,12 +32,9 @@ make
 should yield you a `histui` executable.
 Compile errors on Linux are a symptom of missing requirements.
 
-## Compatibility
-Histui currently supports Bash and Fish;
-and other shells could easily be added.
-As of now, a Histui binary supports a single shell:
-the one that was specified at compile time.
-This may change in the future.
+The shell supported by the binary can be specified
+by setting the `TARGET_SHELL` environment variable before compiling.
+Valid values are `bash` (default) and `fish`.
 
 ### Requirements to compile
 + C compiler
