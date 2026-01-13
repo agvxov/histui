@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "argument_yy.tab.h"
+#include "shell.h"
 
 bool is_expecting_argument = false;
 
@@ -33,10 +34,6 @@ void usage(void) {
 }
 
 void enable(void) {
-    const char enable_string[] = {
-        #embed "histui_enable.sh.inc"
-        , '\0'
-    };
     puts(enable_string);
 }
 
