@@ -29,7 +29,7 @@ object/%.yy.c: source/%.l
 object/%.tab.c: source/%.y
 	bison --name-prefix=$*_ --header=$(basename $@).h -o $@ $<
 
-object/%.o: object/%.l.c
+object/%.o: object/%.c
 	${COMPILE.c} $< -o $@
 
 object/%.o: source/%.c
