@@ -12,7 +12,7 @@ Histui that simply provides a fast TUI for your history.
 * and it sure as hell does not replace your history storage while continuously syncing to a server
 (no recommendations; please don't do that).
 
-Histui fulfills its UNIX-y purpose and fuck-all else.
+Histui fulfills its UNIX-y purpose and fuck-all.
 
 ## Documentation
 For usage details consult the [manual](documentation/histui.1.md).
