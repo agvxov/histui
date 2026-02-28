@@ -12,6 +12,7 @@ function _histui_run;
     env HISTFILE=$HISTFILE $HISTUICMD --input (commandline) 3> $COMMANDFILE;
 
     commandline --replace -- (cat "$COMMANDFILE");
+    commandline --function repaint
 end;
 
 bind \e\[A _histui_run;
