@@ -9,10 +9,13 @@ function _histui_run;
         set HISTFILE "$HOME/.local/share/fish/fish_history";
     end;
 
-    env HISTFILE=$HISTFILE $HISTUICMD --input (commandline) 3> $COMMANDFILE;
+    set INPUT (commandline);
+    commandline --replace "";
+
+    env HISTFILE=$HISTFILE $HISTUICMD --input "$INPUT" 3> $COMMANDFILE;
 
     commandline --replace -- (cat "$COMMANDFILE");
-    commandline --function repaint
+    commandline --function repaint;
 end;
 
 bind \e\[A _histui_run;
