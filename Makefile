@@ -1,4 +1,4 @@
-.PHONY: clean test
+.PHONY: clean test info
 .SUFFIXES:
 
 # --- Paths / files
@@ -53,7 +53,13 @@ LDLIBS   += $$(pkgconf --libs ncurses readline sqlite3)
 OUT:=histui
 
 # --- Rule Section ---
-all: ${OUT}
+all: info ${OUT}
+
+info:
+	@echo Building Histui...
+	@echo Version: $$(cat source/version.inc)
+	@echo Target shell: ${TARGET_SHELL}
+	@echo --
 
 ${OUT}: ${GENSOURCE} ${OBJECT}
 	${LINK.c} -o $@ $(addprefix ${OBJECT.d}/,${OBJECT} ${GENSOURCE}) ${LDLIBS}
