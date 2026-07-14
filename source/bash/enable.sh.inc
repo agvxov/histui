@@ -8,5 +8,5 @@ function _histui_run() {
     READLINE_POINT=${#READLINE_LINE}\n"
 }
 
-bind -x '\"\\e[A\": _histui_run'
-bind -x '\"\\C-r\": _histui_run'
+bind -x '\"\\e[A\": _histui_run' # up arrow
+bind -x '\"\\C-r\": _histui_run' # ctrl + r

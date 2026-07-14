@@ -18,5 +18,5 @@ function _histui_run;
     commandline --function repaint;
 end;
 
-bind \e\[A _histui_run;
-bind \cr   _histui_run;
+bind \e\[A _histui_run; echo 'up arrow' &> /dev/null;
+bind \cr   _histui_run; echo 'ctrl + r' &> /dev/null;
