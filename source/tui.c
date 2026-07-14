@@ -346,10 +346,17 @@ void tui_take_input(void) {
             //flushinp();
             resize();
         } break;
+        case KEY_BACKSPACE: {
+            /* under many terminals, KEY_BACKSPACE is in fact not \b,
+             *  but libreadline expects a \b
+             */
+             input = '\b';
+             goto default_case;
+        } break;
         // ignore errors
         case ERR: break;
         // insert regular char
-        default: {
+        default: default_case: {
             input_available = true;
             rl_callback_read_char();
             is_input_changed = true;
