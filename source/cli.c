@@ -26,7 +26,7 @@ void usage(void) {
         "\t\t-v --version\n"
         "\t\t-h --help\n"
         "\tVerbs:\n"
-        "\t\tenable            : print a bash script to enable histui in the current shell\n"
+        "\t\tenable            : print a " SHELL_NAME " script to enable histui in the current shell\n"
         "\t\ttui [tui-options] : run histui normally\n"
         "\t\t\t--caseless : ignore case while searching\n"
         "\t\t\t--fuzzy    : employ fuzzy searching\n"

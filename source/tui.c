@@ -6,8 +6,7 @@
 
 #include "caret_notater.h"
 
-#define _STRINGIFY(...) # __VA_ARGS__
-#define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
+#include "shell.h"
 
 /* I fucking hate readline.
  * Apparently the only way to set an initial value is using a hook.
@@ -40,7 +39,7 @@ static size_t last_entry_line_index = 0;
 static char version_string[] =
     #include "version.inc"
     " - "
-    STRINGIFY(SHELL)
+    SHELL_NAME
 ;
 
 // Ncurses fun

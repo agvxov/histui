@@ -5,6 +5,7 @@
 #define TARGET_SHELL SHELL
 
 #if TARGET_SHELL == bash
+    #define SHELL_NAME "Bash"
     #include "bash_history.yy.h"
     #define history_in  bash_history_in
     #define history_lex bash_history_lex
@@ -13,6 +14,7 @@
         , '\0'
     };
 #elif TARGET_SHELL == fish
+    #define SHELL_NAME "Fish"
     #include "fish_history.yy.h"
     #define history_in  fish_history_in
     #define history_lex fish_history_lex
