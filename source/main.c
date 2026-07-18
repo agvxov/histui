@@ -43,11 +43,22 @@ void deinit(void) {
 }
 
 void export_result(const char * const result) {
+    /* On some terminals, it is possible to inject characters into STDIN.
+     * Meaning we could inject the whole command and a newline to
+     *  execute it exactly as if the user had typed it.
+     * Such simulation is beneficial because:
+     *  1) it automatically integrates with history, aliases, etc.
+     *  2) it is cross shell
+     *
+     * Problem being that it is not supported half of the time
+     *  (mainly for "security reasons").
+     *
+     * Consequently this old implementation is left in place
+     *  to serve as a reminder, and instead a magick return value
+     *  is used which must be interpreted by the wrapping shell.
+     */
+  #if 0
     if (do_execute) {
-        /* Inject the command and a newline to STDIN directly.
-         * Some systems could theoretically be configured to disallow it.
-         *  Not my problem.
-         */
         for (size_t i = 0; i < strlen(result); i++) {
             if (ioctl(STDIN_FILENO, TIOCSTI, &result[i]) == -1) {
                 perror("ioctl TIOCSTI");
@@ -55,18 +66,18 @@ void export_result(const char * const result) {
         }
         const char newline = '\n';
         ioctl(STDIN_FILENO, TIOCSTI, &newline);
-    } else {
-        /* Copy to a 3th pipe file descriptor which we can
-         *  scoop up from a file and copy with READLINE_LINE.
-         * XXX: if anyone knows a better method, please tell me
-         */
-        int fd[2];
-        int rc = pipe(fd);
-        (void)rc;
-        dprintf(3, result);
-        close(fd[0]);
-        close(fd[1]);
     }
+  #endif
+    /* Copy to a 3th pipe file descriptor which we can
+     *  scoop up from a file and copy with READLINE_LINE.
+     * XXX: if anyone knows a better method, please tell me
+     */
+    int fd[2];
+    int rc = pipe(fd);
+    (void)rc;
+    dprintf(3, result);
+    close(fd[0]);
+    close(fd[1]);
 }
 
 void * async_input([[maybe_unused]] void * arg) {
@@ -119,5 +130,5 @@ signed main(const int argc, const char * const * const argv) {
 
     deinit();
 
-    return 0;
+    return do_execute ? 14 : 0;
 }

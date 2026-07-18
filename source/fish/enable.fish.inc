@@ -13,9 +13,15 @@ function _histui_run;
     commandline --replace "";
 
     env HISTFILE=$HISTFILE $HISTUICMD --input "$INPUT" 3> $COMMANDFILE;
+    set histui_status $status;
 
     commandline --replace -- (cat "$COMMANDFILE");
-    commandline --function repaint;
+
+    if test $histui_status -eq 14;
+        commandline --function execute;
+    else;
+        commandline --function repaint;
+    end;
 end;
 
 bind \e\[A _histui_run; echo 'up arrow' &> /dev/null;

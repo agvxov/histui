@@ -3,10 +3,15 @@ function _histui_run() {
     if ! [ -v HISTUICMD ]; then
         HISTUICMD="histui tui"
     fi
-    HISTFILE=$HISTFILE ${HISTUICMD} --input "${READLINE_LINE}" 3> "${COMMANDFILE}
+    HISTFILE=$HISTFILE ${HISTUICMD} --input "${READLINE_LINE}" 3> "${COMMANDFILE}"
+    HISTUI_STATUS=$?
     READLINE_LINE=$(cat "${COMMANDFILE}")
-    READLINE_POINT=${#READLINE_LINE}\n"
+    READLINE_POINT=${#READLINE_LINE}
+
+    if [ $HISTUI_STATUS -eq 14 ]; then
+        bind '"\C-m":accept-line'
+    fi
 }
 
-bind -x '\"\\e[A\": _histui_run' # up arrow
-bind -x '\"\\C-r\": _histui_run' # ctrl + r
+bind -x '"\e[A": _histui_run' # up arrow
+bind -x '"\C-r": _histui_run' # ctrl + r
