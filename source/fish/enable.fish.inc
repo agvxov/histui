@@ -18,6 +18,7 @@ function _histui_run;
     commandline --replace -- (cat "$COMMANDFILE");
 
     if test $histui_status -eq 14;
+        commandline --function repaint;
         commandline --function execute;
     else;
         commandline --function repaint;
