@@ -20,7 +20,14 @@ void init(void) {
 
     char * history_file_path = getenv("HISTFILE");
     if (!history_file_path) {
-        fputs("$HISTFILE is not set, try exporting it.\n", stderr);
+        fputs(
+            "$HISTFILE is not set. "
+            "You are probably trying to run Histui by hand, "
+            "but it is supposed to be invoked by a wrapper script tailored to your shell "
+            "(`histui enable`).\n"
+            "However, if you insist, you must export $HISTFILE\n.",
+            stderr
+        );
         deinit();
         exit(1);
     }
