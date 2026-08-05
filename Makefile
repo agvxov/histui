@@ -44,7 +44,7 @@ else ifeq (${TARGET_SHELL}, fish)
 endif
 
 CPPFLAGS += -DSHELL=${TARGET_SHELL} -Isource/${TARGET_SHELL}
-CPPFLAGS += -I${SOURCE.d} -I${OBJECT.d}
+CPPFLAGS += -Ilibrary -I${SOURCE.d} -I${OBJECT.d}
 LIBFLAGS := $$(pkgconf --cflags ncurses readline sqlite3)
 CFLAGS   += -std=c2x ${LIBFLAGS}
 CFLAGS   += -Wall -Wextra -Wpedantic 
