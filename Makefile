@@ -46,7 +46,7 @@ endif
 CPPFLAGS += -DSHELL=${TARGET_SHELL} -Isource/${TARGET_SHELL}
 CPPFLAGS += -Ilibrary -I${SOURCE.d} -I${OBJECT.d}
 LIBFLAGS := $$(pkgconf --cflags ncurses readline sqlite3)
-CFLAGS   += -std=c2x ${LIBFLAGS}
+CFLAGS   += -std=c23 ${LIBFLAGS}
 CFLAGS   += -Wall -Wextra -Wpedantic 
 LDLIBS   += $$(pkgconf --libs ncurses readline sqlite3)
 
