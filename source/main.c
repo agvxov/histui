@@ -80,9 +80,10 @@ void export_result(const char * const result) {
      * XXX: if anyone knows a better method, please tell me
      */
     int fd[2];
-    int rc = pipe(fd);
+    int rc; // GCC is retarded and does not respect casting to void for its internal attribute
+    rc = pipe(fd);
+    rc = write(3, result, strlen(result));
     (void)rc;
-    dprintf(3, result);
     close(fd[0]);
     close(fd[1]);
 }

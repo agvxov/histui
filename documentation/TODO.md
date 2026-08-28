@@ -5,5 +5,4 @@ this will have to wait until gcc gets fixed
 + configurable entry format strings?
 + inline syntax highlighting
 + "normal" history order behaviour by reading the history builtin
-+ there appears to be a format string vuln present
 + fish stores new lines as literal \ literal n; parsing does not account for this
