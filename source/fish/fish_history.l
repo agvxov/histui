@@ -4,17 +4,23 @@
     long timestamp;
 
     char * deescape_backslash(char * s) {
-        /* NOTE: Fish always escapes backslashes in its history file;
+        /* NOTE: Fish always escapes user backslashes in its history file;
          *        that is, they always come in pairs, i.e. "\\".
+         *       However, new lines are stored as
+         *        literal '\' literal 'n' (no doubling).
          */
         char * si = s;
         for (char * ss = s; *ss != '\0'; si++, ss++) {
-            switch (*ss) {
-                case '\\': {
-                    ++ss;
-                } break;
+            if (*ss == '\\') {
+                if (*(ss+1) == 'n') {
+                    *si = '\n';
+                } else {
+                    *si = '\\';
+                }
+                ++ss;
+            } else {
+                *si = *ss;
             }
-            *si = *ss;
         }
         *si = '\0';
 
