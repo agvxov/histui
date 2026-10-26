@@ -1,6 +1,5 @@
-+ resizing -- i added the code, the case seem to never execute;
-i have no clue why, and not being able to create debug builds is not helping,
-this will have to wait until gcc gets fixed
++ resizing -- `KEY_RESIZE` is not returned without `nodelay(stdscr, TRUE)`,
+  but even when present, `full_redraw()` doesnt properly redo the output
 + unicode support in the tui
 + configurable entry format strings?
 + inline syntax highlighting

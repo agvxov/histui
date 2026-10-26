@@ -76,6 +76,7 @@ int init_tui(void) {
     noecho();
     curs_set(0);
     keypad(stdscr, TRUE);
+    nodelay(stdscr, TRUE);
 
     init_windows();
 
