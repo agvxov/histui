@@ -4,3 +4,4 @@
 + configurable entry format strings?
 + inline syntax highlighting
 + "normal" history order behaviour by reading the history builtin
++ when there is no result and the user presses enter, execute the input? or atleast preserve it as if tab was pressed?
